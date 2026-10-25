@@ -51,6 +51,7 @@ This preview is unsigned. Source: the TG Classic project supplied with this buil
     if ($bytes[0] -ne 0x4d -or $bytes[1] -ne 0x5a) { throw 'The output is not a Windows PE executable.' }
     $pe = [BitConverter]::ToInt32($bytes, 0x3c)
     if ([BitConverter]::ToUInt16($bytes, $pe+4) -ne 0x8664) { throw 'The executable is not x64.' }
+    & (Join-Path $PSScriptRoot 'verify.ps1') -Executable $exe
     $archive = Join-Path $targetPath 'TG-Classic-Windows-x64.zip'
     Compress-Archive -Path $portable -DestinationPath $archive
     (Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() + '  ' + [IO.Path]::GetFileName($archive) | Set-Content (Join-Path $targetPath 'SHA256SUMS.txt')

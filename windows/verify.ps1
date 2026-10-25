@@ -1,0 +1,25 @@
+param([Parameter(Mandatory=$true)][string]$Executable)
+$ErrorActionPreference = 'Stop'
+$binary = (Resolve-Path $Executable).Path
+$profile = Join-Path ([IO.Path]::GetTempPath()) ('TGClassic-smoke-' + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory $profile | Out-Null
+$process = Start-Process -FilePath $binary -ArgumentList @('-workdir', ('"' + $profile + '"')) -WorkingDirectory $profile -PassThru
+$result = @{ binary=$binary; empty_profile=$profile; duration_seconds=15; started=$false; window_created=$false }
+try {
+    Start-Sleep -Seconds 15
+    $process.Refresh()
+    if ($process.HasExited) { throw "TG Classic exited during startup with code $($process.ExitCode)." }
+    $result.started = $true
+    $result.window_created = $process.MainWindowHandle -ne 0
+    if (-not $result.window_created) { throw 'The process stayed alive but did not create a main window.' }
+    $result.sha256 = (Get-FileHash $binary -Algorithm SHA256).Hash.ToLower()
+} finally {
+    # This process was created above in an empty CI profile, not an installed client.
+    if (-not $process.HasExited) {
+        if ($process.Path -ne $binary) { throw 'Refusing to stop a different executable.' }
+        Stop-Process -Id $process.Id
+        $process.WaitForExit()
+    }
+    $result | ConvertTo-Json | Set-Content (Join-Path (Split-Path $binary -Parent) 'startup-verification.json') -Encoding utf8
+}
+Write-Output 'TG Classic created a native window and stayed running for 15 seconds with an empty profile.'

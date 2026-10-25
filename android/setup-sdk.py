@@ -25,12 +25,12 @@ sdk.mkdir(parents=True, exist_ok=True)
 metadata = cache / 'repository.xml'
 
 def download(url, target):
-    subprocess.run(['curl', '--fail', '--location', '--retry', '4', '--connect-timeout', '20',
+    subprocess.run(['curl', '--fail', '--location', '--retry', '4', '--retry-all-errors', '--connect-timeout', '20',
                     '--max-time', '1800', '--silent', '--show-error', url, '-o', str(target)], check=True)
 
 download('https://dl.google.com/android/repository/repository2-1.xml', metadata)
 repository = ET.parse(metadata).getroot()
-wanted = {'platforms;android-36', 'build-tools;36.0.0', 'ndk;27.2.12479018', 'cmake;3.22.1', 'platform-tools'}
+wanted = {'platforms;android-36', 'build-tools;35.0.0', 'build-tools;36.0.0', 'ndk;27.2.12479018', 'cmake;3.22.1', 'platform-tools'}
 packages = {}
 for package in repository.findall('remotePackage'):
     name = package.attrib.get('path')
@@ -75,7 +75,8 @@ with ThreadPoolExecutor(max_workers=3) as pool:
     installed = list(pool.map(install, packages.values()))
 (sdk / 'licenses').mkdir(exist_ok=True)
 for license in repository.findall('license'):
-    digest = hashlib.sha1(license.text.strip().encode()).hexdigest()
+    # Android's License.getLicenseHash hashes the exact XML text, including its trailing newline.
+    digest = hashlib.sha1(license.text.encode()).hexdigest()
     (sdk / 'licenses' / license.attrib['id']).write_text(digest + '\n')
 (cache / 'installed.json').write_text(json.dumps(installed, indent=2) + '\n')
 print('Pinned Android SDK ready: ' + str(sdk))

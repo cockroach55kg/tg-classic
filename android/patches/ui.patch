@@ -22,7 +22,7 @@ index 70c567d..c8a0622 100644
          targetSdkVersion 36
  
 diff --git a/TMessagesProj/config/release/AndroidManifest_standalone.xml b/TMessagesProj/config/release/AndroidManifest_standalone.xml
-index 53e0fa7..08ef4ba 100644
+index 53e0fa7..bf3f4ee 100644
 --- a/TMessagesProj/config/release/AndroidManifest_standalone.xml
 +++ b/TMessagesProj/config/release/AndroidManifest_standalone.xml
 @@ -48,8 +48,8 @@
@@ -80,11 +80,20 @@ index 53e0fa7..08ef4ba 100644
              android:exported="true"
              tools:node="replace">
  
+@@ -124,7 +124,7 @@
+             </intent-filter>
+         </activity-alias>
+ 
+-        <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyA-t0jLPjUt2FxrA8VPK2EiYHcYcboIR6k" />
++        <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="" />
+ 
+         <service
+             android:name="org.telegram.messenger.GcmPushListenerService" android:exported="true">
 diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java b/TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-index 4ed7e64..d809c0e 100644
+index 4ed7e64..8941862 100644
 --- a/TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
 +++ b/TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-@@ -22,12 +22,12 @@ public class BuildVars {
+@@ -22,26 +22,26 @@ public class BuildVars {
      public static boolean LOGS_ENABLED = BuildConfig.DEBUG_VERSION;
      public static boolean DEBUG_PRIVATE_VERSION = BuildConfig.DEBUG_PRIVATE_VERSION;
      public static boolean USE_CLOUD_STRINGS = true;
@@ -99,8 +108,17 @@ index 4ed7e64..d809c0e 100644
 +    public static String APP_HASH = BuildConfig.TGCLASSIC_API_HASH;
  
      // SafetyNet key for Google Identity SDK, set it to empty to disable
-     public static String SAFETYNET_KEY = "AIzaSyDqt8P-7F7CPCseMkOiVRgb1LY8RN1bvH8";
-@@ -41,7 +41,7 @@ public class BuildVars {
+-    public static String SAFETYNET_KEY = "AIzaSyDqt8P-7F7CPCseMkOiVRgb1LY8RN1bvH8";
++    public static String SAFETYNET_KEY = "";
+     public static String PLAYSTORE_APP_URL = "https://play.google.com/store/apps/details?id=org.telegram.messenger";
+     public static String HUAWEI_STORE_URL = "https://appgallery.huawei.com/app/C101184875";
+-    public static String GOOGLE_AUTH_CLIENT_ID = "760348033671-81kmi3pi84p11ub8hp9a1funsv0rn2p9.apps.googleusercontent.com";
++    public static String GOOGLE_AUTH_CLIENT_ID = "";
+ 
+-    public static String HUAWEI_APP_ID = "101184875";
++    public static String HUAWEI_APP_ID = "";
+ 
+     // You can use this flag to disable Google Play Billing (If you're making fork and want it to be in Google Play)
      public static boolean IS_BILLING_UNAVAILABLE = false;
  
      // works only on official app ids, disable on your forks
@@ -367,6 +385,132 @@ index d9d6c04..c284ca1 100644
              if (backgroundDrawable == null || skipBackgroundDrawing) {
                  return;
              }
+diff --git a/TMessagesProj/src/main/res/values-ar/strings.xml b/TMessagesProj/src/main/res/values-ar/strings.xml
+index 8b87004..8d861ba 100644
+--- a/TMessagesProj/src/main/res/values-ar/strings.xml
++++ b/TMessagesProj/src/main/res/values-ar/strings.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="AppName">تيليجرام</string>
+-    <string name="AppNameBeta">(Beta) تيليجرام</string>
++    <string name="AppName">TG Classic</string>
++    <string name="AppNameBeta">TG Classic</string>
+     <string name="LanguageName">العربية</string>
+     <string name="English">الإنجليزية</string>
+     <string name="LanguageNameInEnglish">Arabic</string>
+diff --git a/TMessagesProj/src/main/res/values-de/strings.xml b/TMessagesProj/src/main/res/values-de/strings.xml
+index 9054784..ba7a8a9 100644
+--- a/TMessagesProj/src/main/res/values-de/strings.xml
++++ b/TMessagesProj/src/main/res/values-de/strings.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="AppName">Telegram</string>
+-    <string name="AppNameBeta">Telegram Beta</string>
++    <string name="AppName">TG Classic</string>
++    <string name="AppNameBeta">TG Classic</string>
+     <string name="LanguageName">Deutsch</string>
+     <string name="English">Englisch</string>
+     <string name="LanguageNameInEnglish">German</string>
+diff --git a/TMessagesProj/src/main/res/values-es/strings.xml b/TMessagesProj/src/main/res/values-es/strings.xml
+index 4779808..ba0482d 100644
+--- a/TMessagesProj/src/main/res/values-es/strings.xml
++++ b/TMessagesProj/src/main/res/values-es/strings.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="AppName">Telegram</string>
+-    <string name="AppNameBeta">Telegram Beta</string>
++    <string name="AppName">TG Classic</string>
++    <string name="AppNameBeta">TG Classic</string>
+     <string name="LanguageName">Español</string>
+     <string name="English">Inglés</string>
+     <string name="LanguageNameInEnglish">Spanish</string>
+diff --git a/TMessagesProj/src/main/res/values-it/strings.xml b/TMessagesProj/src/main/res/values-it/strings.xml
+index 3e7688d..5599fd6 100644
+--- a/TMessagesProj/src/main/res/values-it/strings.xml
++++ b/TMessagesProj/src/main/res/values-it/strings.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="AppName">Telegram</string>
+-    <string name="AppNameBeta">Telegram Beta</string>
++    <string name="AppName">TG Classic</string>
++    <string name="AppNameBeta">TG Classic</string>
+     <string name="LanguageName">Italiano</string>
+     <string name="English">Inglese</string>
+     <string name="LanguageNameInEnglish">Italian</string>
+diff --git a/TMessagesProj/src/main/res/values-ko/strings.xml b/TMessagesProj/src/main/res/values-ko/strings.xml
+index 6f75e2e..8919adf 100644
+--- a/TMessagesProj/src/main/res/values-ko/strings.xml
++++ b/TMessagesProj/src/main/res/values-ko/strings.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="AppName">텔레그램</string>
+-    <string name="AppNameBeta">텔레그램</string>
++    <string name="AppName">TG Classic</string>
++    <string name="AppNameBeta">TG Classic</string>
+     <string name="LanguageName">한국어</string>
+     <string name="English">영어</string>
+     <string name="LanguageNameInEnglish">한국어</string>
+diff --git a/TMessagesProj/src/main/res/values-nl/strings.xml b/TMessagesProj/src/main/res/values-nl/strings.xml
+index f3df87e..4ec4d95 100644
+--- a/TMessagesProj/src/main/res/values-nl/strings.xml
++++ b/TMessagesProj/src/main/res/values-nl/strings.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="AppName">Telegram</string>
+-    <string name="AppNameBeta">Telegram-bèta</string>
++    <string name="AppName">TG Classic</string>
++    <string name="AppNameBeta">TG Classic</string>
+     <string name="LanguageName">Nederlands</string>
+     <string name="English">Engels</string>
+     <string name="LanguageNameInEnglish">Dutch</string>
+diff --git a/TMessagesProj/src/main/res/values-pt-rBR/strings.xml b/TMessagesProj/src/main/res/values-pt-rBR/strings.xml
+index 03d0ba3..85f6fbd 100644
+--- a/TMessagesProj/src/main/res/values-pt-rBR/strings.xml
++++ b/TMessagesProj/src/main/res/values-pt-rBR/strings.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="AppName">Telegram</string>
+-    <string name="AppNameBeta">Telegram Beta</string>
++    <string name="AppName">TG Classic</string>
++    <string name="AppNameBeta">TG Classic</string>
+     <string name="LanguageName">Português (Brasil)</string>
+     <string name="English">Inglês</string>
+     <string name="LanguageNameInEnglish">Portuguese (Brazil)</string>
+diff --git a/TMessagesProj/src/main/res/values-ru/strings.xml b/TMessagesProj/src/main/res/values-ru/strings.xml
+index 24c5629..437c75a 100644
+--- a/TMessagesProj/src/main/res/values-ru/strings.xml
++++ b/TMessagesProj/src/main/res/values-ru/strings.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="AppName">Telegram</string>
+-    <string name="AppNameBeta">Telegram Beta</string>
++    <string name="AppName">TG Classic</string>
++    <string name="AppNameBeta">TG Classic</string>
+     <string name="LanguageName">Русский</string>
+     <string name="English">Английский</string>
+     <string name="LanguageNameInEnglish">Russian</string>
+diff --git a/TMessagesProj/src/main/res/values-uk/strings.xml b/TMessagesProj/src/main/res/values-uk/strings.xml
+index d468344..e21dcde 100644
+--- a/TMessagesProj/src/main/res/values-uk/strings.xml
++++ b/TMessagesProj/src/main/res/values-uk/strings.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="AppName">Telegram</string>
+-    <string name="AppNameBeta">Telegram Beta</string>
++    <string name="AppName">TG Classic</string>
++    <string name="AppNameBeta">TG Classic</string>
+     <string name="LanguageName">Українська</string>
+     <string name="English">Англійська</string>
+     <string name="LanguageNameInEnglish">Ukrainian</string>
 diff --git a/TMessagesProj/src/main/res/values/strings.xml b/TMessagesProj/src/main/res/values/strings.xml
 index 7d8212d..7107ff1 100644
 --- a/TMessagesProj/src/main/res/values/strings.xml

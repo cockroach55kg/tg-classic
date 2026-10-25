@@ -48,6 +48,7 @@ jobs:
         with:
           path: |
             ${{ env.TGCLASSIC_BUILD_ROOT }}/Libraries
+            ${{ env.TGCLASSIC_BUILD_ROOT }}/win64/Libraries
             ${{ env.TGCLASSIC_BUILD_ROOT }}/ThirdParty
           key: tg-classic-win64-debug-${{ runner.os }}-${{ hashFiles('manifest.json') }}
           restore-keys: tg-classic-win64-debug-${{ runner.os }}-

@@ -24,7 +24,7 @@ subprocess.run(['git','submodule','update','--init','--recursive','--depth','1']
 key=Path(env['TGCLASSIC_DEBUG_KEYSTORE']);key.parent.mkdir(parents=True,exist_ok=True)
 if not key.exists():
  subprocess.run(['keytool','-genkeypair','-keystore',str(key),'-storepass','android','-keypass','android','-alias','androiddebugkey','-dname','CN=Android Debug,O=Android,C=US','-keyalg','RSA','-validity','10000'],env=env,check=True,stdout=subprocess.DEVNULL)
-subprocess.run(['bash','gradlew',':TMessagesProj_AppStandalone:assembleAfatDebug','--no-daemon','--max-workers=2','-Dorg.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g'],cwd=source,env=env,check=True)
+subprocess.run(['bash','gradlew',':TMessagesProj_AppStandalone:assembleAfatDebug','--no-daemon','--max-workers=2','-Pkotlin.compiler.execution.strategy=in-process','-Dorg.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g'],cwd=source,env=env,check=True)
 outputs=list((source/'TMessagesProj_AppStandalone/build/outputs/apk').rglob('*.apk'));assert len(outputs)==1,outputs
 out=root.parent/'artifacts/android';out.mkdir(parents=True,exist_ok=True);target=out/'TG-Classic-Android-arm64-builder.apk';shutil.copy2(outputs[0],target)
 with zipfile.ZipFile(target) as z:
