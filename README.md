@@ -8,7 +8,7 @@
 
 Локальные пакеты находятся в `artifacts/android/TG-Classic-Android-arm64.apk` и `artifacts/windows/TG-Classic-Windows-x64.zip`. Windows: распаковать папку целиком и открыть `TG Classic.exe`. Android: установить APK ARM64 на Android 6.0+. Это тестовые сборки с ограниченными реквизитами upstream; перед публичным выпуском требуются собственные [Telegram API ID и Hash](https://core.telegram.org/api/obtaining_api_id).
 
-[Успешная сборка Windows](https://github.com/cockroach55kg/tg-classic/actions/runs/40186825974) и [проверка запуска пакета](https://github.com/cockroach55kg/tg-classic/actions/runs/40211639958). Архивы Actions хранятся 30 дней; для скачивания артефактов нужен вход в GitHub. Исходники и сценарии сборки открыты, постоянные ключи подписи и профили в репозитории отсутствуют.
+[Успешная сборка Windows](https://github.com/cockroach55kg/tg-classic/actions/runs/40186825974) и [проверка запуска пакета](https://github.com/cockroach55kg/tg-classic/actions/runs/40212157556). Архивы Actions хранятся 30 дней; для скачивания артефактов нужен вход в GitHub. Исходники и сценарии сборки открыты, постоянные ключи подписи и профили в репозитории отсутствуют.
 
 **Статус r4: установлен `/Applications/TG Classic.app`. Прошли 211 нативных проверок, самостоятельный запуск пакета, проверка подписи и всех 67 исполняемых файлов и библиотек. Готовый пакет для Apple Silicon и macOS 14+ сохранён в `artifacts/TG Classic.app`.**
 

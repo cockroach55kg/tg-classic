@@ -37,7 +37,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: TG-Classic-Windows-x64-verified
-          path: package/*
+          path: |
+            package/TG-Classic-Windows-x64.zip
+            package/SHA256SUMS.txt
+            package/startup-verification.*
           if-no-files-found: error
           retention-days: 30
       - uses: actions/upload-artifact@v4

@@ -8,6 +8,8 @@ On a Windows machine, prepare the pinned checkout with `python apply.py`, initia
 
 ## Проверенный пакет
 
-Первый Windows x64 Debug пакет собран: [run 40186825974](https://github.com/cockroach55kg/tg-classic/actions/runs/40186825974), исходная ревизия `14dde67`. Отдельная [проверка пакета](https://github.com/cockroach55kg/tg-classic/actions/runs/40211639958) подтвердила контрольную сумму, создание нативного окна и работу процесса 15 секунд с пустым профилем. Артефакт `TG-Classic-Windows-x64-verified` доступен 30 дней через Actions после входа в GitHub.
+Первый Windows x64 Debug пакет собран: [run 40186825974](https://github.com/cockroach55kg/tg-classic/actions/runs/40186825974), исходная ревизия `14dde67`. Отдельная [проверка пакета](https://github.com/cockroach55kg/tg-classic/actions/runs/40212157556) подтвердила контрольную сумму, создание нативного окна и работу процесса 15 секунд с пустым профилем. Артефакт `TG-Classic-Windows-x64-verified` доступен 30 дней через Actions после входа в GitHub.
 
 Локальный файл: `artifacts/windows/TG-Classic-Windows-x64.zip`. Распакуйте всю папку и запустите `TG Classic.exe`; DLL должны остаться рядом. Это portable-сборка без Authenticode-подписи, с ограниченными реквизитами upstream для личной проверки. Для публичного релиза нужны собственные [API ID и Hash](https://core.telegram.org/api/obtaining_api_id). Вход, обмен сообщениями и звонки в этом прогоне не проверялись. В первой сборке свойства PE-файла ещё содержат исходные данные Telegram Desktop; `brand.py` применяет имя TG Classic к этим полям при следующей сборке. Имя окна, файл и иконка уже TG Classic.
+
+ZIP: 152 217 653 байта. SHA-256: `0fb59040f3a491760e9637229a0b90fcc75c278ba3ab146c71ee8dabffbb369d`. Дополнительный прогон сохранил снимок окна; оформление визуально проверено. Исполняемый файл в ZIP совпадает с проверенным процессом побайтово. Будущие артефакты содержат ZIP и результаты проверки без повторной копии распакованного приложения.

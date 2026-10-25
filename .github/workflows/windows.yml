@@ -66,6 +66,8 @@ jobs:
         if: success()
         with:
           name: TG-Classic-Windows-x64
-          path: artifacts/windows/*
+          path: |
+            artifacts/windows/TG-Classic-Windows-x64.zip
+            artifacts/windows/SHA256SUMS.txt
           retention-days: 30
           if-no-files-found: error

@@ -68,9 +68,13 @@
     "authenticode_signed": false,
     "build_run": "https://github.com/cockroach55kg/tg-classic/actions/runs/40186825974",
     "build_source_commit": "14dde67",
-    "startup_run": "https://github.com/cockroach55kg/tg-classic/actions/runs/40211639958",
+    "startup_run": "https://github.com/cockroach55kg/tg-classic/actions/runs/40212157556",
     "startup_foreground_seconds": 15,
     "native_window_verified": true,
-    "authenticated_session_tested": false
+    "authenticated_session_tested": false,
+    "startup_screenshot": "evidence/windows-r1/startup-verification.png",
+    "package_sha256": "0fb59040f3a491760e9637229a0b90fcc75c278ba3ab146c71ee8dabffbb369d",
+    "package_bytes": 152217653,
+    "binary_sha256": "488e2594f7443f22c030c3b3574e86a5d20a05c8ba2c3c9322084cea662582e9"
   }
 }
