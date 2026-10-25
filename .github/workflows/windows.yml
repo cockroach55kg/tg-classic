@@ -44,7 +44,8 @@ jobs:
           arch: x64
           toolset: '14.44'
           sdk: '10.0.26100.0'
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: dependencies
         with:
           path: |
             ${{ env.TGCLASSIC_BUILD_ROOT }}/Libraries
@@ -54,6 +55,13 @@ jobs:
           restore-keys: tg-classic-win64-debug-${{ runner.os }}-
       - name: Build Windows x64 Debug and package
         run: ./windows/build.ps1 -Source "$env:TGCLASSIC_BUILD_ROOT/tdesktop" -Destination "$env:GITHUB_WORKSPACE/artifacts/windows"
+      - uses: actions/cache/save@v4
+        if: always() && steps.dependencies.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ${{ env.TGCLASSIC_BUILD_ROOT }}/Libraries
+            ${{ env.TGCLASSIC_BUILD_ROOT }}/ThirdParty
+          key: ${{ steps.dependencies.outputs.cache-primary-key }}
       - uses: actions/upload-artifact@v4
         if: success()
         with:

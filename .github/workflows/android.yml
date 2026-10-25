@@ -30,13 +30,19 @@ jobs:
         run: |
           echo "ANDROID_HOME=$GITHUB_WORKSPACE/android/local/sdk" >> "$GITHUB_ENV"
           python3 android/setup-sdk.py
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: gradle
         with:
           path: android/local/gradle
           key: tg-classic-android-${{ runner.os }}-${{ hashFiles('android/manifest.json') }}
           restore-keys: tg-classic-android-${{ runner.os }}-
       - name: Build arm64 APK with temporary builder signature
         run: python3 android/build.py --sdk "$ANDROID_HOME"
+      - uses: actions/cache/save@v4
+        if: always() && steps.gradle.outputs.cache-hit != 'true'
+        with:
+          path: android/local/gradle
+          key: ${{ steps.gradle.outputs.cache-primary-key }}
       - uses: actions/upload-artifact@v4
         if: success()
         with:

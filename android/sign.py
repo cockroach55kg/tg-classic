@@ -56,7 +56,7 @@ temporary = args.output.with_suffix('.signing.apk')
 assert not temporary.exists(), 'An incomplete signing output exists; inspect it first.'
 subprocess.run([
     java, '-jar', str(signer), 'sign', '--ks', str(key), '--ks-key-alias', 'tgclassic',
-    '--ks-pass', 'file:' + str(password), '--key-pass', 'file:' + str(password),
+    '--ks-pass', 'file:' + str(password),
     '--out', str(temporary), str(args.input),
 ], env=env, check=True)
 verification = subprocess.check_output([

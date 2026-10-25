@@ -191,19 +191,44 @@ index f8960d3..80eb932 100644
                      rectTmp.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
                      blurScrimPaint.setColor(actionModeColor);
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java
-index 369642d..63b9431 100644
+index 369642d..20baa19 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java
-@@ -615,6 +615,9 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
+@@ -316,6 +316,14 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
+             shadowDrawable.setColorFilter(new PorterDuffColorFilter(backgroundColor, PorterDuff.Mode.MULTIPLY));
+             shadowDrawable.getPadding(backgroundPaddings);
+         }
++        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++            blurredNativeBackground = false;
++            blurredBackground = false;
++            android.graphics.drawable.ShapeDrawable classicBackground = org.telegram.ui.Classic.ClassicStyle.shape(backgroundColor, false);
++            classicBackground.setPadding(dp(2), dp(2), dp(2), dp(2));
++            shadowDrawable = classicBackground;
++            backgroundPaddings.set(dp(2), dp(2), dp(2), dp(2));
++        }
+         withCancelDialog = progressViewStyle == ALERT_TYPE_SPINNER;
+     }
+ 
+@@ -615,6 +623,10 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
                  }
              }
              super.dispatchDraw(canvas);
-+            if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++            if (org.telegram.ui.Classic.ClassicStyle.enabled() && progressViewStyle != ALERT_TYPE_SPINNER) {
++                org.telegram.ui.Classic.ClassicStyle.controlFrames(canvas, this);
 +                org.telegram.ui.Classic.ClassicStyle.frame(canvas, new android.graphics.RectF(0,0,getWidth(),getHeight()),false,255);
 +            }
          }
      }
  
+@@ -663,7 +675,7 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
+                 containerView.setBackground(shadowDrawable);
+ 
+                 containerView.setOutlineProvider(ViewOutlineProviderImpl.boundsWithPaddingRoundRect(dp(8), dp(20)));
+-                containerView.setClipToOutline(true);
++                containerView.setClipToOutline(!org.telegram.ui.Classic.ClassicStyle.enabled());
+ 
+                 drawBackground = false;
+             }
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/MessageDrawable.java b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/MessageDrawable.java
 index 9242105..bdbc5e5 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/MessageDrawable.java
@@ -382,6 +407,45 @@ index 52b511d..ba3f55d 100644
      }
  
      private int getThemedColor(int key) {
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/FragmentFloatingButton.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/FragmentFloatingButton.java
+index ce63f66..132c686 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/FragmentFloatingButton.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/FragmentFloatingButton.java
+@@ -68,9 +68,9 @@ public class FragmentFloatingButton extends FrameLayout implements FactorAnimato
+         addView(progressView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+         setAnimatedVisibility(progressView, 0);
+ 
+-        ScaleStateListAnimator.apply(this);
++        if (!org.telegram.ui.Classic.ClassicStyle.enabled()) ScaleStateListAnimator.apply(this);
+         if (!isSubButton) {
+-            setOutlineProvider(ViewOutlineProviderImpl.BOUNDS_OVAL);
++            setOutlineProvider(org.telegram.ui.Classic.ClassicStyle.enabled() ? android.view.ViewOutlineProvider.BOUNDS : ViewOutlineProviderImpl.BOUNDS_OVAL);
+             setTranslationZ(dpf2(0.5f));
+         }
+ 
+@@ -148,6 +148,13 @@ public class FragmentFloatingButton extends FrameLayout implements FactorAnimato
+     private BlurredBackgroundColorProviderThemed iBlur3ColorProviderTabs;
+ 
+     public void updateColors() {
++        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++            imageView.setColorFilter(org.telegram.ui.Classic.ClassicStyle.text(), PorterDuff.Mode.SRC_IN);
++            progressView.setProgressColor(org.telegram.ui.Classic.ClassicStyle.text());
++            setBackground(Theme.createSimpleSelectorRoundRectDrawable(0, org.telegram.ui.Classic.ClassicStyle.surface(), org.telegram.ui.Classic.ClassicStyle.surface()));
++            invalidate();
++            return;
++        }
+         if (isSubButton) {
+             imageView.setColorFilter(Theme.getColor(Theme.key_actionBarDefaultIcon, resourcesProvider), PorterDuff.Mode.SRC_IN);
+             progressView.setProgressColor(Theme.getColor(Theme.key_actionBarDefaultIcon, resourcesProvider));
+@@ -214,7 +221,7 @@ public class FragmentFloatingButton extends FrameLayout implements FactorAnimato
+ 
+     @Override
+     public void draw(@NonNull Canvas canvas) {
+-        if (iBlur3Background != null) {
++        if (iBlur3Background != null && !org.telegram.ui.Classic.ClassicStyle.enabled()) {
+             iBlur3Background.draw(canvas);
+         }
+         super.draw(canvas);
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/SizeNotifierFrameLayout.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/SizeNotifierFrameLayout.java
 index d9d6c04..c284ca1 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/SizeNotifierFrameLayout.java
@@ -397,6 +461,139 @@ index d9d6c04..c284ca1 100644
              if (backgroundDrawable == null || skipBackgroundDrawing) {
                  return;
              }
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java
+index b3cd7c5..5985da2 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java
+@@ -157,7 +157,7 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+         logoDrawable.setBounds(0, dp(8.666f), dp(115), dp(35));
+         SpannableStringBuilder ssb = new SpannableStringBuilder(LocaleController.getString(R.string.Page1Title));
+         ssb.setSpan(new ImageSpan(logoDrawable), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+-        titles[0] = ssb;
++        titles[0] = org.telegram.ui.Classic.ClassicStyle.enabled() ? "TG Classic" : ssb;
+ 
+ 
+         actionBar.setAddToContainer(false);
+@@ -292,6 +292,14 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+             }
+         });
+ 
++        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++            textureView.setVisibility(View.GONE);
++            android.widget.ImageView classicIcon = new android.widget.ImageView(context);
++            classicIcon.setImageResource(context.getResources().getIdentifier("tg_classic_launcher", "drawable", context.getPackageName()));
++            classicIcon.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
++            frameLayout2.addView(classicIcon, LayoutHelper.createFrame(150, 150, Gravity.CENTER));
++        }
++
+         viewPager = new ViewPager(context);
+         viewPager.setAdapter(new IntroAdapter());
+         viewPager.setPageMargin(0);
+@@ -349,13 +357,18 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+ 
+             @Override
+             public void draw(@NonNull Canvas canvas) {
+-                startMessagingButtonBackground.draw(canvas);
++                if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++                    org.telegram.ui.Classic.ClassicStyle.panel(canvas, new android.graphics.Rect(0, 0, getWidth(), getHeight()), org.telegram.ui.Classic.ClassicStyle.surface(), isPressed());
++                } else {
++                    startMessagingButtonBackground.draw(canvas);
++                }
+                 super.draw(canvas);
+             }
+ 
+             @Override
+             protected void onDraw(Canvas canvas) {
+                 super.onDraw(canvas);
++                if (org.telegram.ui.Classic.ClassicStyle.enabled()) return;
+                 AndroidUtilities.rectTmp.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
+                 cellFlickerDrawable.draw(canvas, AndroidUtilities.rectTmp, getMeasuredHeight() / 2f, null);
+                 invalidate();
+@@ -371,7 +384,7 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+                 }
+             }
+         };
+-        ScaleStateListAnimator.apply(startMessagingButton, .02f, 1.2f);
++        if (!org.telegram.ui.Classic.ClassicStyle.enabled()) ScaleStateListAnimator.apply(startMessagingButton, .02f, 1.2f);
+         startMessagingButton.setText(LocaleController.getString(R.string.StartMessaging));
+         startMessagingButton.setGravity(Gravity.CENTER);
+         startMessagingButton.setTypeface(AndroidUtilities.bold());
+@@ -422,7 +435,19 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+             LocaleController.getInstance().applyLanguage(localeInfo, true, false, currentAccount);
+         });
+ 
+-        frameContainerView.addView(themeFrameLayout, LayoutHelper.createFrame(64, 64, Gravity.TOP | Gravity.RIGHT, 0, themeMargin, themeMargin, 0));
++        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++            TextView title = new TextView(context);
++            title.setText("TG Classic");
++            title.setTextColor(Color.WHITE);
++            title.setTypeface(AndroidUtilities.bold());
++            title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
++            title.setGravity(Gravity.CENTER_VERTICAL);
++            title.setPadding(dp(8), 0, dp(48), 0);
++            title.setBackground(org.telegram.ui.Classic.ClassicStyle.shape(org.telegram.ui.Classic.ClassicStyle.title(), false));
++            frameContainerView.addView(title, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 36, Gravity.TOP, 4, 4 + AndroidUtilities.statusBarHeight / context.getResources().getDisplayMetrics().density, 4, 0));
++            themeFrameLayout.setBackground(Theme.createSimpleSelectorRoundRectDrawable(0, org.telegram.ui.Classic.ClassicStyle.surface(), org.telegram.ui.Classic.ClassicStyle.surface()));
++        }
++        frameContainerView.addView(themeFrameLayout, LayoutHelper.createFrame(org.telegram.ui.Classic.ClassicStyle.enabled() ? 40 : 64, org.telegram.ui.Classic.ClassicStyle.enabled() ? 36 : 64, Gravity.TOP | Gravity.RIGHT, 0, themeMargin, themeMargin, 0));
+ 
+         fragmentView = scrollView;
+ 
+@@ -965,9 +990,9 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+         logoDrawable.setColorFilter(Theme.multAlpha(getThemedColor(Theme.key_actionBarDefaultTitle), 0.9f), PorterDuff.Mode.MULTIPLY);
+         fragmentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+         switchLanguageTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText4));
+-        startMessagingButton.setTextColor(Theme.getColor(Theme.key_featuredStickers_buttonText));
++        startMessagingButton.setTextColor(org.telegram.ui.Classic.ClassicStyle.enabled() ? org.telegram.ui.Classic.ClassicStyle.text() : Theme.getColor(Theme.key_featuredStickers_buttonText));
+         startMessagingButton.setBackground(Theme.createSimpleSelectorRoundRectDrawable(dp(24), Color.TRANSPARENT, Theme.getColor(Theme.key_featuredStickers_addButtonPressed)));
+-        darkThemeDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_featuredStickers_addButton), PorterDuff.Mode.SRC_IN));
++        darkThemeDrawable.setColorFilter(new PorterDuffColorFilter(org.telegram.ui.Classic.ClassicStyle.enabled() ? org.telegram.ui.Classic.ClassicStyle.text() : Theme.getColor(Theme.key_featuredStickers_addButton), PorterDuff.Mode.SRC_IN));
+         bottomPages.invalidate();
+         if (fromTheme) {
+             if (eglThread != null) {
+@@ -994,6 +1019,6 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+     @Override
+     public boolean isLightStatusBar() {
+         int color = Theme.getColor(Theme.key_windowBackgroundWhite, null, true);
+-        return ColorUtils.calculateLuminance(color) > 0.7f;
++        return ColorUtils.calculateLuminance(color) > (org.telegram.ui.Classic.ClassicStyle.enabled() ? 0.35f : 0.7f);
+     }
+ }
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java
+index de2413c..af2ff55 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java
+@@ -2134,6 +2134,10 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
+             codeField.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
+             codeField.setImeOptions(EditorInfo.IME_ACTION_NEXT | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+             codeField.setBackground(null);
++            if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++                codeField.setBackground(org.telegram.ui.Classic.ClassicStyle.shape(Theme.getColor(Theme.key_chat_inBubble), true));
++                codeField.setPadding(dp(6), 0, dp(6), 0);
++            }
+ //            codeField.setLineColors(getThemedColor(Theme.key_windowBackgroundWhiteInputField), getThemedColor(Theme.key_windowBackgroundWhiteInputFieldActivated), getThemedColor(Theme.key_text_RedRegular));
+             codeField.setShowSoftInputOnFocus(!(hasCustomKeyboard() && !isCustomKeyboardForceDisabled()));
+             codeField.setContentDescription(getString(R.string.LoginAccessibilityCountryCode));
+@@ -2327,6 +2331,10 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
+             phoneField.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
+             phoneField.setImeOptions(EditorInfo.IME_ACTION_NEXT | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+             phoneField.setBackground(null);
++            if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++                phoneField.setBackground(org.telegram.ui.Classic.ClassicStyle.shape(Theme.getColor(Theme.key_chat_inBubble), true));
++                phoneField.setPadding(dp(6), 0, dp(6), 0);
++            }
+ //            phoneField.setLineColors(getThemedColor(Theme.key_windowBackgroundWhiteInputField), getThemedColor(Theme.key_windowBackgroundWhiteInputFieldActivated), getThemedColor(Theme.key_text_RedRegular));
+             phoneField.setShowSoftInputOnFocus(!(hasCustomKeyboard() && !isCustomKeyboardForceDisabled()));
+             phoneField.setContentDescription(getString(R.string.PhoneNumber));
+@@ -8773,7 +8781,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
+     @Override
+     public boolean isLightStatusBar() {
+         int color = Theme.getColor(Theme.key_windowBackgroundWhite, null, true);
+-        return ColorUtils.calculateLuminance(color) > 0.7f;
++        return ColorUtils.calculateLuminance(color) > (org.telegram.ui.Classic.ClassicStyle.enabled() ? 0.35f : 0.7f);
+     }
+ 
+     private int currentConnectionState;
 diff --git a/TMessagesProj/src/main/res/values-ar/strings.xml b/TMessagesProj/src/main/res/values-ar/strings.xml
 index 8b87004..8d861ba 100644
 --- a/TMessagesProj/src/main/res/values-ar/strings.xml

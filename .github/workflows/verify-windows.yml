@@ -1,0 +1,42 @@
+name: Verify TG Classic Windows package
+on:
+  workflow_dispatch:
+    inputs:
+      source_run:
+        description: Successful TG Classic Windows build run ID
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    runs-on: windows-2025
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify the Windows package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.source_run }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:SOURCE_RUN -notmatch '^\d+$') { throw 'Invalid run ID.' }
+          gh run download $env:SOURCE_RUN --repo $env:GITHUB_REPOSITORY --name TG-Classic-Windows-x64 --dir package
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $archive = Resolve-Path 'package/TG-Classic-Windows-x64.zip'
+          $expected = (Get-Content 'package/SHA256SUMS.txt' -Raw).Trim().Split(' ')[0].ToLower()
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() -ne $expected) { throw 'Package checksum mismatch.' }
+          $probe = Join-Path $env:RUNNER_TEMP 'TGClassicPackageProbe'
+          Expand-Archive $archive $probe
+          ./windows/verify.ps1 -Executable "$probe/TG Classic/TG Classic.exe"
+          Copy-Item "$probe/TG Classic/startup-verification.json" package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TG-Classic-Windows-x64-verified
+          path: package/*
+          if-no-files-found: error
+          retention-days: 30
