@@ -21,14 +21,15 @@ jobs:
       TGCLASSIC_TEST_API: ${{ inputs.test_api }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
       - name: Prepare Android SDK
         shell: bash
         run: |
-          sdkmanager --install 'platforms;android-36' 'build-tools;36.0.0' 'ndk;27.2.12479018' 'cmake;3.22.1'
+          echo "ANDROID_HOME=$GITHUB_WORKSPACE/android/local/sdk" >> "$GITHUB_ENV"
+          python3 android/setup-sdk.py
       - uses: actions/cache@v4
         with:
           path: android/local/gradle
