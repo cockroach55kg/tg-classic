@@ -1,0 +1,12 @@
+diff --git a/bindgen/cpp/bindgen/src/bindings/cpp/templates/wrapper.cpp b/bindgen/cpp/bindgen/src/bindings/cpp/templates/wrapper.cpp
+--- a/bindgen/cpp/bindgen/src/bindings/cpp/templates/wrapper.cpp
++++ b/bindgen/cpp/bindgen/src/bindings/cpp/templates/wrapper.cpp
+@@ -114,7 +114,7 @@ R rust_call_async(Start start, Poll poll, Complete complete, Free free, EF error_cb
+     initialize();
+ 
+     auto handle = start();
+-    RustFutureHandleGuard guard { handle, free };
++    RustFutureHandleGuard<Free> guard { handle, free };
+ 
+     while (true) {
+         RustFutureContinuationState state;

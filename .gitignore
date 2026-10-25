@@ -1,0 +1,16 @@
+tdesktop/
+local-mac/*
+!local-mac/dependencies.json
+artifacts/
+*.zip
+*.dmg
+*.app/
+__pycache__/
+.DS_Store
+.env
+.env.*
+tdata/
+
+android/upstream/
+android/local/
+.private/

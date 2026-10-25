@@ -1,0 +1,1371 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 694595f..199872f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -31,6 +31,7 @@ nice_target_sources(lib_ui ${src_loc}
+ PRIVATE
+     ${style_files}
+     ui/colors.palette
++    ui/classic_style.h
+     emoji_suggestions/emoji_autocomplete.json
+ 
+     fonts/fonts.qrc
+diff --git a/ui/classic_style.h b/ui/classic_style.h
+new file mode 100644
+index 0000000..87be965
+--- /dev/null
++++ b/ui/classic_style.h
+@@ -0,0 +1,87 @@
++#pragma once
++
++#include "ui/style/style_core.h"
++#include "styles/palette.h"
++
++#include <QtGui/QPainter>
++
++#include <algorithm>
++
++namespace Ui::Classic {
++
++enum class Relief {
++	Raised,
++	Sunken,
++};
++
++inline QColor Surface() {
++	return st::windowBg->c;
++}
++
++inline QColor Title() {
++	return (Surface().lightness() < 128)
++		? st::windowBgActive->c.darker(160)
++		: st::titleBgActive->c;
++}
++
++inline QColor TitleText() {
++	return st::windowFgActive->c;
++}
++
++inline QColor Text() {
++	return st::windowFg->c;
++}
++
++inline void Frame(
++		QPainter &p,
++		QRect rect,
++		int unit,
++		Relief relief = Relief::Raised) {
++	unit = std::max(unit, 1);
++	if (rect.width() < 4 * unit || rect.height() < 4 * unit) {
++		return;
++	}
++	p.save();
++	p.setRenderHint(QPainter::Antialiasing, false);
++	const auto sunken = (relief == Relief::Sunken);
++	const auto surface = Surface();
++	const auto night = surface.lightness() < 128;
++	const auto light = night ? surface.lighter(180) : QColor(255, 255, 255);
++	const auto face = night ? surface.lighter(135) : QColor(223, 223, 223);
++	const auto shadow = night ? surface.darker(135) : QColor(128, 128, 128);
++	const auto dark = night ? surface.darker(200) : QColor(64, 64, 64);
++	const auto edge = [&](QRect area, QColor top, QColor bottom) {
++		p.fillRect(area.x(), area.y(), area.width(), unit, top);
++		p.fillRect(area.x(), area.y(), unit, area.height(), top);
++		p.fillRect(
++			area.x() + unit,
++			area.y() + area.height() - unit,
++			area.width() - unit,
++			unit,
++			bottom);
++		p.fillRect(
++			area.x() + area.width() - unit,
++			area.y() + unit,
++			unit,
++			area.height() - unit,
++			bottom);
++	};
++	edge(rect, sunken ? shadow : light, sunken ? light : dark);
++	edge(
++		rect.adjusted(unit, unit, -unit, -unit),
++		sunken ? dark : face,
++		sunken ? face : shadow);
++	p.restore();
++}
++
++inline void Panel(
++		QPainter &p,
++		QRect rect,
++		QColor fill,
++		int unit,
++		Relief relief = Relief::Raised) {
++	p.fillRect(rect, fill);
++	Frame(p, rect, unit, relief);
++}
++
++} // namespace Ui::Classic
+diff --git a/ui/colors.palette b/ui/colors.palette
+index e2ba0d6..e288538 100644
+--- a/ui/colors.palette
++++ b/ui/colors.palette
+@@ -6,22 +6,22 @@
+ //
+ 
+ // basic
+-windowBg: #ffffff; // white: fallback for background
++windowBg: #c0c0c0; // white: fallback for background
+ windowFg: #000000; // black: fallback for text
+-windowBgOver: #f1f1f1; // light gray: fallback for background with mouse over
+-windowBgRipple: #e5e5e5; // darker gray: fallback for ripple effect
++windowBgOver: #d4d0c8; // light gray: fallback for background with mouse over
++windowBgRipple: #a0a0a0; // darker gray: fallback for ripple effect
+ windowFgOver: windowFg; // black: fallback for text with mouse over
+-windowSubTextFg: #999999; // gray: fallback for additional text
+-windowSubTextFgOver: #919191; // darker gray: fallback for additional text with mouse over
+-windowBoldFg: #222222; // dark gray: fallback for bold text
+-windowBoldFgOver: #222222; // dark gray: fallback for bold text with mouse over
+-windowBgActive: #40a7e3; // bright blue: fallback for blue filled active areas
++windowSubTextFg: #606060; // gray: fallback for additional text
++windowSubTextFgOver: #404040; // darker gray: fallback for additional text with mouse over
++windowBoldFg: #000000; // dark gray: fallback for bold text
++windowBoldFgOver: #000000; // dark gray: fallback for bold text with mouse over
++windowBgActive: #000080; // bright blue: fallback for blue filled active areas
+ windowFgActive: #ffffff; // white: fallback for text on active areas
+-windowActiveTextFg: #168acd; // online blue: fallback for active text like online status
++windowActiveTextFg: #000080; // online blue: fallback for active text like online status
+ windowShadowFg: #000000; // black: fallback for shadow
+ windowShadowFgFallback: #f1f1f1; // gray: fallback for shadow without opacity
+ 
+-shadowFg: #00000018; // most shadows (including opacity)
++shadowFg: #00000040; // most shadows (including opacity)
+ slideFadeOutBg: #0000003c; // slide animation (chat to profile) fade out filling
+ slideFadeOutShadowFg: windowShadowFg; // slide animation (chat to profile) fade out right section shadow
+ 
+@@ -29,20 +29,20 @@ imageBg: #000000; // image background fallback (when photo size is less than min
+ imageBgTransparent: #ffffff; // image background when displaying an image with opacity where no opacity is needed
+ 
+ // widgets
+-activeButtonBg: windowBgActive; // default active button background
+-activeButtonBgOver: #39a5db; // default active button background with mouse over
++activeButtonBg: #c0c0c0; // default active button background
++activeButtonBgOver: #d4d0c8; // default active button background with mouse over
+ activeButtonBgRipple: #2095d0; // default active button ripple effect
+-activeButtonFg: windowFgActive; // default active button text
++activeButtonFg: #000000; // default active button text
+ activeButtonFgOver: activeButtonFg; // default active button text with mouse over
+-activeButtonSecondaryFg: #cceeff; // default active button additional text (selected messages counter in forward / delete buttons)
++activeButtonSecondaryFg: #404040; // default active button additional text (selected messages counter in forward / delete buttons)
+ activeButtonSecondaryFgOver: activeButtonSecondaryFg; // default active button additional text with mouse over
+-activeLineFg: #37a1de; // default active line (like code input field bottom border when you log in and field is focused)
++activeLineFg: #000080; // default active line (like code input field bottom border when you log in and field is focused)
+ activeLineFgError: #e48383; // default active line for error state (like code input field bottom border when you log in and you've entered incorrect code)
+ 
+-lightButtonBg: windowBg; // default light button background (like buttons in boxes)
+-lightButtonBgOver: #e3f1fa; // default light button background with mouse over
++lightButtonBg: #c0c0c0; // default light button background (like buttons in boxes)
++lightButtonBgOver: #d4d0c8; // default light button background with mouse over
+ lightButtonBgRipple: #c9e4f6; // default light button ripple effect
+-lightButtonFg: windowActiveTextFg; // default light button text
++lightButtonFg: #000000; // default light button text
+ lightButtonFgOver: lightButtonFg; // default light button text with mouse over
+ 
+ attentionButtonFg: #d14e4e; // default attention button text (like confirm button on log out)
+@@ -50,19 +50,19 @@ attentionButtonFgOver: #d14e4e; // default attention button text with mouse over
+ attentionButtonBgOver: #fcdfde; // default attention button background with mouse over
+ attentionButtonBgRipple: #f4c3c2; // default attention button ripple effect
+ 
+-menuBg: windowBg; // default popup menu background
+-menuBgOver: windowBgOver; // default popup menu item background with mouse over
++menuBg: #c0c0c0; // default popup menu background
++menuBgOver: #000080; // default popup menu item background with mouse over
+ menuBgRipple: windowBgRipple; // default popup menu item ripple effect
+-menuIconFg: #999999; // default popup menu item icon (like main menu)
+-menuIconFgOver: #8a8a8a; // default popup menu item icon with mouse over
++menuIconFg: #202020; // default popup menu item icon (like main menu)
++menuIconFgOver: #ffffff; // default popup menu item icon with mouse over
+ menuSubmenuArrowFg: #373737; // default popup menu submenu arrow icon (like in message field context menu in case of RTL system language)
+ menuFgDisabled: #cccccc; // default popup menu item disabled text (like unavailable items in message field context menu)
+-menuSeparatorFg: #f1f1f1; // default popup menu separator (like in message field context menu)
++menuSeparatorFg: #808080; // default popup menu separator (like in message field context menu)
+ 
+-scrollBarBg: #00000053; // default scroll bar current rectangle, the bar itself (like in chats list)
+-scrollBarBgOver: #0000007a; // default scroll bar current rectangle with mouse over it
+-scrollBg: #0000001a; // default scroll bar background
+-scrollBgOver: #0000002c; // default scroll bar background with mouse over the scroll bar
++scrollBarBg: #c0c0c0; // default scroll bar current rectangle, the bar itself (like in chats list)
++scrollBarBgOver: #d4d0c8; // default scroll bar current rectangle with mouse over it
++scrollBg: #dfdfdf; // default scroll bar background
++scrollBgOver: #dfdfdf; // default scroll bar background with mouse over the scroll bar
+ 
+ smallCloseIconFg: #c7c7c7; // small X icon (like in Show all sessions box to the right for sessions termination)
+ smallCloseIconFgOver: #a3a3a3; // small X icon with mouse over
+@@ -73,9 +73,9 @@ radialBg: #00000056; // default radial loader background (like in Media Viewer w
+ placeholderFg: windowSubTextFg; // default input field placeholder when field is not focused (like in phone input field when you log in)
+ placeholderFgActive: #aaaaaa; // default input field placeholder when field is focused
+ inputBorderFg: #e0e0e0; // default input field bottom border (like in code input field when you log in and field is not focused)
+-filterInputBorderFg: #54c3f3; // default rounded input field border (like in chats list search field when field is focused)
+-filterInputActiveBg: windowBg; // default rounded input field active background (like in chats list search field when field is focused)
+-filterInputInactiveBg: windowBgOver; // default rounded input field inactive background (like in chats list search field when field is inactive)
++filterInputBorderFg: #808080; // default rounded input field border (like in chats list search field when field is focused)
++filterInputActiveBg: #ffffff; // default rounded input field active background (like in chats list search field when field is focused)
++filterInputInactiveBg: #ffffff; // default rounded input field inactive background (like in chats list search field when field is inactive)
+ checkboxFg: #b3b3b3; // default unchecked checkbox rounded rectangle
+ 
+ botKbBg: menuBgOver; // bot keyboard button background
+@@ -97,26 +97,26 @@ tooltipBorderFg: #c9d1db; // tooltip border
+ 
+ // custom title bar
+ titleShadow: #00000003; // one pixel line shadow at the bottom of custom window title
+-titleBg: windowBgOver; // custom window title background when window is inactive
+-titleBgActive: titleBg; // custom window title background when window is active
+-titleButtonBg: titleBg; // custom window title minimize/maximize/restore button background when window is inactive (Windows only)
+-titleButtonFg: #ababab; // custom window title minimize/maximize/restore button icon when window is inactive (Windows only)
+-titleButtonBgOver: #e5e5e5; // custom window title minimize/maximize/restore button background with mouse over when window is inactive (Windows only)
+-titleButtonFgOver: #9a9a9a; // custom window title minimize/maximize/restore button icon with mouse over when window is inactive (Windows only)
+-titleButtonBgActive: titleButtonBg; // custom window title minimize/maximize/restore button background when window is active (Windows only)
+-titleButtonFgActive: titleButtonFg; // custom window title minimize/maximize/restore button icon when window is active (Windows only)
+-titleButtonBgActiveOver: titleButtonBgOver; // custom window title minimize/maximize/restore button background with mouse over when window is active (Windows only)
+-titleButtonFgActiveOver: titleButtonFgOver; // custom window title minimize/maximize/restore button icon with mouse over when window is active (Windows only)
+-titleButtonCloseBg: titleButtonBg; // custom window title close button background when window is inactive (Windows only)
+-titleButtonCloseFg: titleButtonFg; // custom window title close button icon when window is inactive (Windows only)
+-titleButtonCloseBgOver: #e81123; // custom window title close button background with mouse over when window is inactive (Windows only)
+-titleButtonCloseFgOver: windowFgActive; // custom window title close button icon with mouse over when window is inactive (Windows only)
+-titleButtonCloseBgActive: titleButtonCloseBg; // custom window title close button background when window is active (Windows only)
+-titleButtonCloseFgActive: titleButtonCloseFg; // custom window title close button icon when window is active (Windows only)
+-titleButtonCloseBgActiveOver: titleButtonCloseBgOver; // custom window title close button background with mouse over when window is active (Windows only)
+-titleButtonCloseFgActiveOver: titleButtonCloseFgOver; // custom window title close button icon with mouse over when window is active (Windows only)
+-titleFg: #acacac; // custom window title text when window is inactive (Windows 11 and macOS)
+-titleFgActive: #3e3c3e; // custom window title text when window is active (Windows 11 and macOS)
++titleBg: #808080; // custom window title background when window is inactive
++titleBgActive: #000080; // custom window title background when window is active
++titleButtonBg: #c0c0c0; // custom window title minimize/maximize/restore button background when window is inactive (Windows only)
++titleButtonFg: #000000; // custom window title minimize/maximize/restore button icon when window is inactive (Windows only)
++titleButtonBgOver: #c0c0c0; // custom window title minimize/maximize/restore button background with mouse over when window is inactive (Windows only)
++titleButtonFgOver: #000000; // custom window title minimize/maximize/restore button icon with mouse over when window is inactive (Windows only)
++titleButtonBgActive: #c0c0c0; // custom window title minimize/maximize/restore button background when window is active (Windows only)
++titleButtonFgActive: #000000; // custom window title minimize/maximize/restore button icon when window is active (Windows only)
++titleButtonBgActiveOver: #c0c0c0; // custom window title minimize/maximize/restore button background with mouse over when window is active (Windows only)
++titleButtonFgActiveOver: #000000; // custom window title minimize/maximize/restore button icon with mouse over when window is active (Windows only)
++titleButtonCloseBg: #c0c0c0; // custom window title close button background when window is inactive (Windows only)
++titleButtonCloseFg: #000000; // custom window title close button icon when window is inactive (Windows only)
++titleButtonCloseBgOver: #c0c0c0; // custom window title close button background with mouse over when window is inactive (Windows only)
++titleButtonCloseFgOver: #000000; // custom window title close button icon with mouse over when window is inactive (Windows only)
++titleButtonCloseBgActive: #c0c0c0; // custom window title close button background when window is active (Windows only)
++titleButtonCloseFgActive: #000000; // custom window title close button icon when window is active (Windows only)
++titleButtonCloseBgActiveOver: #c0c0c0; // custom window title close button background with mouse over when window is active (Windows only)
++titleButtonCloseFgActiveOver: #000000; // custom window title close button icon with mouse over when window is active (Windows only)
++titleFg: #ffffff; // custom window title text when window is inactive (Windows 11 and macOS)
++titleFgActive: #ffffff; // custom window title text when window is active (Windows 11 and macOS)
+ 
+ // tray icon
+ trayCounterBg: #f23c34; // tray icon counter background
+@@ -132,12 +132,12 @@ cancelIconFg: menuIconFg; // default for settings close icon and box search canc
+ cancelIconFgOver: menuIconFgOver; // default for settings close icon and box search cancel icon with mouse over
+ 
+ // boxes
+-boxBg: windowBg; // box background
++boxBg: #c0c0c0; // box background
+ boxTextFg: windowFg; // box text
+ boxTextFgGood: #4ab44a; // accepted box text (like when choosing username that is not occupied)
+ boxTextFgError: #d84d4d; // rejecting box text (like when choosing username that is occupied)
+ boxTitleFg: #404040; // box title text
+-boxSearchBg: boxBg; // box search field background (like in contacts box)
++boxSearchBg: #ffffff; // box search field background (like in contacts box)
+ 
+ boxTitleAdditionalFg: #808080; // box title additional text (like in create group box when you see chosen members count)
+ boxTitleCloseFg: cancelIconFg; // settings close icon and box search cancel icon (like in contacts box)
+@@ -180,25 +180,25 @@ introCoverPlaneTop: #ffffff; // intro plane part
+ dialogsMenuIconFg: menuIconFg; // main menu and passcode lock icon
+ dialogsMenuIconFgOver: menuIconFgOver; // main menu and passcode lock icon with mouse over
+ 
+-dialogsBg: windowBg; // chat list background
+-dialogsNameFg: windowBoldFg; // chat list name text
++dialogsBg: #ffffff; // chat list background
++dialogsNameFg: #000000; // chat list name text
+ dialogsChatIconFg: dialogsNameFg; // chat list group or channel icon
+-dialogsDateFg: windowSubTextFg; // chat list date text
+-dialogsTextFg: windowSubTextFg; // chat list message text
++dialogsDateFg: #404040; // chat list date text
++dialogsTextFg: #404040; // chat list message text
+ dialogsTextFgService: windowActiveTextFg; // chat list group sender name text (or media message type text)
+ dialogsDraftFg: #dd4b39; // chat list draft label
+ dialogsVerifiedIconBg: windowBgActive; // chat list verified icon background
+ dialogsVerifiedIconFg: windowFgActive; // chat list verified icon check
+ dialogsSendingIconFg: #c1c1c1; // chat list sending message icon (clock)
+ dialogsSentIconFg: #5dc452; // chat list sent message tick / double tick icon
+-dialogsUnreadBg: windowBgActive; // chat list unread badge background for not muted chat
++dialogsUnreadBg: #c0c0c0; // chat list unread badge background for not muted chat
+ dialogsUnreadBgMuted: #bbbbbb; // chat list unread badge background for muted chat
+-dialogsUnreadFg: windowFgActive; // chat list unread badge text
++dialogsUnreadFg: #000000; // chat list unread badge text
+ dialogsArchiveFg: #525252 | dialogsNameFg; // chat list archive name text
+ dialogsOnlineBadgeFg: #4dc920 | dialogsUnreadBg; // chat list online status
+ dialogsScamFg: dialogsDraftFg; // chat list scam label
+ 
+-dialogsBgOver: windowBgOver; // chat list background with mouse over
++dialogsBgOver: #dfdfdf; // chat list background with mouse over
+ dialogsNameFgOver: windowBoldFgOver; // chat list name text with mouse over
+ dialogsChatIconFgOver: dialogsNameFgOver; // chat list group or channel icon with mouse over
+ dialogsDateFgOver: windowSubTextFgOver; // chat list date text with mouse over
+@@ -215,25 +215,25 @@ dialogsUnreadFgOver: dialogsUnreadFg; // chat list unread badge text with mouse
+ dialogsArchiveFgOver: #525252 | dialogsNameFgOver; // chat list archive name text with mouse over
+ dialogsScamFgOver: dialogsDraftFgOver; // chat list scam label with mouse over
+ 
+-dialogsBgActive: #419fd9; // chat list background for current (active) chat
+-dialogsNameFgActive: windowFgActive; // chat list name text for current (active) chat
++dialogsBgActive: #000080; // chat list background for current (active) chat
++dialogsNameFgActive: #ffffff; // chat list name text for current (active) chat
+ dialogsChatIconFgActive: dialogsNameFgActive; // chat list group or channel icon for current (active) chat
+ dialogsDateFgActive: windowFgActive; // chat list date text for current (active) chat
+-dialogsTextFgActive: windowFgActive; // chat list message text for current (active) chat
++dialogsTextFgActive: #ffffff; // chat list message text for current (active) chat
+ dialogsTextFgServiceActive: dialogsTextFgActive; // chat list group sender name text for current (active) chat
+ dialogsDraftFgActive: #c6e1f7; // chat list draft label for current (active) chat
+ dialogsVerifiedIconBgActive: dialogsTextFgActive; // chat list verified icon background for current (active) chat
+ dialogsVerifiedIconFgActive: dialogsBgActive; // chat list verified icon check for current (active) chat
+ dialogsSendingIconFgActive: #ffffff99; // chat list sending message icon (clock) for current (active) chat
+ dialogsSentIconFgActive: dialogsTextFgActive; // chat list sent message tick / double tick icon for current (active) chat
+-dialogsUnreadBgActive: dialogsTextFgActive; // chat list unread badge background for not muted chat for current (active) chat
++dialogsUnreadBgActive: #ffffff; // chat list unread badge background for not muted chat for current (active) chat
+ dialogsUnreadBgMutedActive: dialogsDraftFgActive; // chat list unread badge background for muted chat for current (active) chat
+-dialogsUnreadFgActive: dialogsBgActive; // chat list unread badge text for current (active) chat
++dialogsUnreadFgActive: #000080; // chat list unread badge text for current (active) chat
+ dialogsOnlineBadgeFgActive: #ffffff; // chat list online status for current (active) chat
+ dialogsScamFgActive: dialogsDraftFgActive; // chat list scam label for current (active) chat
+ 
+-dialogsRippleBg: windowBgRipple; // chat list background ripple effect
+-dialogsRippleBgActive: activeButtonBgRipple; // chat list background ripple effect for current (active) chat
++dialogsRippleBg: #00000000; // chat list background ripple effect
++dialogsRippleBgActive: #00000000; // chat list background ripple effect for current (active) chat
+ 
+ searchedBarBg: windowBgOver; // search results bar background (in chats list, contacts box..)
+ searchedBarFg: windowSubTextFgOver; // search results bar text (in chats list, contacts box..)
+@@ -243,7 +243,7 @@ searchedTextCurrentMatchBg: #f5ab5c; // in-page search current result highlight
+ searchedTextCurrentMatchFg: #000000; // in-page search current result highlight text (Instant View, markdown editor)
+ 
+ // history
+-topBarBg: windowBg; // top bar background (in chat view, media overview..)
++topBarBg: #000080; // top bar background (in chat view, media overview..)
+ 
+ emojiPanBg: windowBg; // emoji panel background
+ emojiPanCategories: #f7f7f7 | windowBg; // emoji panel categories background
+@@ -257,9 +257,9 @@ stickerPreviewBg: #ffffffb0; // sticker and GIF preview background (when you pre
+ stickerPanPremium1: #5a99ff; // premium sticker pack icon gradient 1
+ stickerPanPremium2: #45b9f3; // premium sticker pack icon gradient 2
+ 
+-historyTextInFg: windowFg; // inbox message text
++historyTextInFg: #000000; // inbox message text
+ historyTextInFgSelected: historyTextInFg; // inbox message selected text or text in a selected message
+-historyTextOutFg: windowFg; // outbox message text
++historyTextOutFg: #000000; // outbox message text
+ historyTextOutFgSelected: historyTextOutFg; // outbox message selected text or text in a selected message
+ historyLinkInFg: windowActiveTextFg; // inbox message link
+ historyLinkInFgSelected: historyLinkInFg; // inbox message link in a selected text or message
+@@ -346,26 +346,26 @@ historyScrollBarBgOver: #517c41bc; // scroll bar current rectangle with mouse ov
+ historyScrollBg: #517c414c; // scroll bar background (adjusted)
+ historyScrollBgOver: #517c416b; // scroll bar background with mouse over the scroll bar (adjusted)
+ 
+-msgInBg: windowBg; // inbox message background
+-msgInBgSelected: #c2dcf2; // inbox selected message background (and background of selected text in those messages)
+-msgOutBg: #effdde; // outbox message background
+-msgOutBgSelected: #b7dbdb; // outbox selected message background (and background of selected text in those messages)
++msgInBg: #ffffff; // inbox message background
++msgInBgSelected: #c0d0ef; // inbox selected message background (and background of selected text in those messages)
++msgOutBg: #dbe8ff; // outbox message background
++msgOutBgSelected: #b0c4e8; // outbox selected message background (and background of selected text in those messages)
+ msgSelectOverlay: #358cd44c; // overlay which is filling the media parts of selected messages (like in selected photo message)
+ msgStickerOverlay: #358cd47f; // overlay which is filling the selected sticker message
+ msgInServiceFg: windowActiveTextFg; // inbox message information text (like information about a forwarded message original sender)
+ msgInServiceFgSelected: windowActiveTextFg; // inbox selected message information text (like information about a forwarded message original sender)
+ msgOutServiceFg: #45a32d; // outbox message information text (like information about a forwarded message original sender)
+ msgOutServiceFgSelected: #469992; // outbox message information text (like information about a forwarded message original sender)
+-msgInShadow: #748ea229; // inbox message shadow (below the bubble)
++msgInShadow: #808080; // inbox message shadow (below the bubble)
+ msgInShadowSelected: #548dbb29; // inbox selected message shadow (below the bubble)
+-msgOutShadow: #3ac3461d; // outbox message shadow (below the bubble)
++msgOutShadow: #808080; // outbox message shadow (below the bubble)
+ msgOutShadowSelected: #37a78d22; // outbox selected message shadow (below the bubble)
+-msgInDateFg: #a0acb6; // inbox message time text
++msgInDateFg: #606060; // inbox message time text
+ msgInDateFgSelected: #6a9cc5; // inbox selected message time text
+-msgOutDateFg: #6db566; // outbox message time text
++msgOutDateFg: #404060; // outbox message time text
+ msgOutDateFgSelected: #56b2a6; // outbox selected message time text
+-msgServiceFg: windowFgActive; // service message text (like date dividers or service message about the group title being changed)
+-msgServiceBg: #517c417f; // service message background (like in a service message about group title being changed) (adjusted)
++msgServiceFg: #000000; // service message text (like date dividers or service message about the group title being changed)
++msgServiceBg: #c0c0c0; // service message background (like in a service message about group title being changed) (adjusted)
+ msgServiceBgSelected: #96b38ba2; // service message selected text background (like in a service message about group title being changed) (adjusted)
+ msgInReplyBarColor: activeLineFg; // inbox message reply outline
+ msgInReplyBarSelColor: activeLineFg; // inbox selected message reply outline
+@@ -455,15 +455,15 @@ historyToDownFg: menuIconFg; // arrow button icon
+ historyToDownFgOver: menuIconFgOver; // arrow button icon with mouse over
+ historyToDownShadow: #00000040; // arrow button shadow
+ 
+-historyComposeAreaBg: msgInBg; // history compose area background (message write area / reply information / forwarding information)
+-historyComposeAreaFg: historyTextInFg; // history compose area text
++historyComposeAreaBg: #c0c0c0; // history compose area background (message write area / reply information / forwarding information)
++historyComposeAreaFg: #000000; // history compose area text
+ historyComposeAreaFgService: msgInDateFg; // history compose area text when replying to a media message
+-historyComposeIconFg: menuIconFg; // history compose area icon (like emoji, attach, bot command..)
+-historyComposeIconFgOver: menuIconFgOver; // history compose area icon with mouse over
++historyComposeIconFg: #202020; // history compose area icon (like emoji, attach, bot command..)
++historyComposeIconFgOver: #000000; // history compose area icon with mouse over
+ historySendIconFg: windowBgActive; // send message icon
+ historySendIconFgOver: windowBgActive; // send message icon with mouse over
+ historyPinnedBg: historyComposeAreaBg; // pinned message area background
+-historyReplyBg: historyComposeAreaBg; // reply / forward / edit message area background
++historyReplyBg: #c0c0c0; // reply / forward / edit message area background
+ historyReplyIconFg: windowBgActive; // reply / forward / edit message left icon
+ historyReplyCancelFg: cancelIconFg; // reply / forward / edit message cancel button
+ historyReplyCancelFgOver: cancelIconFgOver; // reply / forward / edit message cancel button with mouse over
+@@ -497,8 +497,8 @@ notificationSampleCloseFg: #d7d7d7 | windowSubTextFg; // custom notifications se
+ notificationSampleTextFg: #d7d7d7 | windowSubTextFg; // custom notifications settings box small sample text placeholder
+ notificationSampleNameFg: #939393 | windowSubTextFg; // custom notifications settings box small sample name placeholder
+ 
+-mainMenuBg: windowBg; // main menu background
+-mainMenuCoverBg: dialogsBgActive; // main menu top cover background
++mainMenuBg: #c0c0c0; // main menu background
++mainMenuCoverBg: #000080; // main menu top cover background
+ mainMenuCloudFg: activeButtonFg; // main menu top cover saved messages / archive button icon
+ mainMenuCloudBg: #2785bf | activeButtonBgRipple; // main menu top cover saved messages / archive button background
+ 
+@@ -642,18 +642,18 @@ walletTopLabelFg: #999999; // wallet top updated label text
+ walletTopIconFg: walletTopLabelFg; // wallet top refresh and menu icons
+ walletTopIconRipple: #ffffff12; // wallet top menu icon ripple effect
+ 
+-sideBarBg: #293a4c; // filters side bar background
+-sideBarBgActive: #17212b; // filters side bar active background
+-sideBarBgRipple: #1e2b38; // filters side bar ripple effect
+-sideBarTextFg: #8897a6; // filters side bar text
+-sideBarTextFgActive: #64b9fa; // filters side bar active item text
+-sideBarIconFg: #8393a3; // filters side bar icon
+-sideBarIconFgActive: #5eb5f7; // filters side bar active item icon
+-sideBarBadgeBg: #5eb5f7; // filters side bar badge background
+-sideBarBadgeBgActive: sideBarBadgeBg; // filters side bar badge background when folder is open
++sideBarBg: windowBg; // filters side bar background
++sideBarBgActive: windowBgActive; // filters side bar active background
++sideBarBgRipple: windowBgRipple; // filters side bar ripple effect
++sideBarTextFg: windowFg; // filters side bar text
++sideBarTextFgActive: windowFgActive; // filters side bar active item text
++sideBarIconFg: windowFg; // filters side bar icon
++sideBarIconFgActive: windowFgActive; // filters side bar active item icon
++sideBarBadgeBg: windowBgActive; // filters side bar badge background
++sideBarBadgeBgActive: windowBgActive; // filters side bar badge background when folder is open
+ sideBarBadgeBgMuted: #8393a3; // filters side bar unimportant badge background
+ sideBarBadgeBgMutedActive: sideBarBadgeBg; // filters side bar unimportant badge background when folder is open
+-sideBarBadgeFg: #ffffff; // filters side bar badge text
++sideBarBadgeFg: windowFgActive; // filters side bar badge text
+ 
+ songCoverOverlayFg: #00000066; // song cover overlay
+ 
+diff --git a/ui/effects/round_area_with_shadow.cpp b/ui/effects/round_area_with_shadow.cpp
+index f1bf71a..d556ffd 100644
+--- a/ui/effects/round_area_with_shadow.cpp
++++ b/ui/effects/round_area_with_shadow.cpp
+@@ -6,6 +6,9 @@
+ //
+ #include "ui/effects/round_area_with_shadow.h"
+ 
++#include "ui/classic_style.h"
++#include "styles/style_basic.h"
++
+ #include "ui/style/style_core.h"
+ #include "ui/image/image_prepare.h"
+ #include "ui/painter.h"
+@@ -115,7 +118,7 @@ ImageSubrect RoundAreaWithShadow::validateOverlayMask(
+ 		p.scale(scale, scale);
+ 		p.translate(-center);
+ 	}
+-	p.drawRoundedRect(inner, radius, radius);
++	p.drawRect(inner);
+ 	if (scale != 1.) {
+ 		p.restore();
+ 	}
+@@ -172,7 +175,7 @@ ImageSubrect RoundAreaWithShadow::validateOverlayShadow(
+ 			p.scale(scale, scale);
+ 			p.translate(-center);
+ 		}
+-		p.drawRoundedRect(extended.translated(0, shift), radius, radius);
++		p.drawRect(extended.translated(0, shift));
+ 		p.end();
+ 	}
+ 
+@@ -408,7 +411,7 @@ QRect RoundAreaWithShadow::validateShadow(
+ 		p.scale(scale, scale);
+ 		p.translate(-center);
+ 	}
+-	p.drawRoundedRect(big.translated(0, shift), radius, radius);
++	p.drawRect(big.translated(0, shift));
+ 	p.end();
+ 	_shadowBuffer = Images::Blur(std::move(_shadowBuffer));
+ 
+@@ -459,7 +462,7 @@ ImageSubrect RoundAreaWithShadow::validateFrame(
+ 		p.scale(scale, scale);
+ 		p.translate(-center);
+ 	}
+-	p.drawRoundedRect(inner, radius, radius);
++	Classic::Panel(p, inner, _background, st::lineWidth);
+ 	if (scale != 1.) {
+ 		p.restore();
+ 	}
+diff --git a/ui/image/image_prepare.cpp b/ui/image/image_prepare.cpp
+index 03d3de4..9858bc6 100644
+--- a/ui/image/image_prepare.cpp
++++ b/ui/image/image_prepare.cpp
+@@ -75,12 +75,12 @@ const QImage &EllipseMaskCached(QSize size) {
+ 
+ std::array<QImage, 4> PrepareCornersMask(int radius) {
+ 	auto result = std::array<QImage, 4>();
+-	const auto side = radius * style::DevicePixelRatio();
++	const auto side = std::max(radius, 1) * style::DevicePixelRatio();
+ 	auto full = QImage(
+ 		QSize(side, side) * 3,
+ 		QImage::Format_ARGB32_Premultiplied);
+-	full.fill(Qt::transparent);
+-	{
++	full.fill((radius > 0) ? Qt::transparent : Qt::white);
++	if (radius > 0) {
+ 		QPainter p(&full);
+ 		PainterHighQualityEnabler hq(p);
+ 
+diff --git a/ui/layers/box_layer_widget.cpp b/ui/layers/box_layer_widget.cpp
+index 7a9c2b7..4a1d781 100644
+--- a/ui/layers/box_layer_widget.cpp
++++ b/ui/layers/box_layer_widget.cpp
+@@ -6,6 +6,8 @@
+ //
+ #include "ui/layers/box_layer_widget.h"
+ 
++#include "ui/classic_style.h"
++
+ #include "ui/effects/radial_animation.h"
+ #include "ui/widgets/buttons.h"
+ #include "ui/widgets/labels.h"
+@@ -163,6 +165,7 @@ void BoxLayerWidget::paintEvent(QPaintEvent *e) {
+ 			rect.size(),
+ 			width());
+ 	}
++	Classic::Frame(p, rect(), st::lineWidth);
+ }
+ 
+ void BoxLayerWidget::paintAdditionalTitle(Painter &p) {
+diff --git a/ui/layers/layers.style b/ui/layers/layers.style
+index ebb7796..c2cbad2 100644
+--- a/ui/layers/layers.style
++++ b/ui/layers/layers.style
+@@ -35,7 +35,7 @@ Box {
+ }
+ 
+ boxDuration: 200;
+-boxRadius: 8px;
++boxRadius: 0px;
+ 
+ boxButtonFont: font(boxFontSize semibold);
+ defaultBoxButtonTextStyle: TextStyle(semiboldTextStyle) {
+diff --git a/ui/platform/mac/ui_window_mac.mm b/ui/platform/mac/ui_window_mac.mm
+index d9f700e..23ecee9 100644
+--- a/ui/platform/mac/ui_window_mac.mm
++++ b/ui/platform/mac/ui_window_mac.mm
+@@ -14,8 +14,10 @@
+ #include "base/qt_signal_producer.h"
+ #include "base/platform/base_platform_info.h"
+ #include "styles/palette.h"
++#include "styles/style_widgets.h"
+ 
+ #include <QtCore/QCoreApplication>
++#include <QtCore/QTimer>
+ #include <QtCore/QAbstractNativeEventFilter>
+ #include <QtGui/QWindow>
+ #include <QtGui/QtEvents>
+@@ -281,10 +283,23 @@ bool nativeEventFilter(
+ 	});
+ }
+ 
++void WindowHelper::Private::reapplyCustomTitle() {
++	resolveWeakPointers();
++	enforceStyle();
++}
++
+ void WindowHelper::Private::enforceStyle() {
+ 	revalidateWeakPointers();
+ 	if (_nativeWindow && _customTitleHeight > 0) {
+-		[_nativeWindow setStyleMask:[_nativeWindow styleMask] | NSWindowStyleMaskFullSizeContentView];
++		const auto mask = [_nativeWindow styleMask];
++		if (!(mask & NSWindowStyleMaskFullSizeContentView)) {
++			[_nativeWindow setStyleMask:mask | NSWindowStyleMaskFullSizeContentView];
++		}
++		[_nativeWindow setTitlebarAppearsTransparent:YES];
++		[_nativeWindow setTitleVisibility:NSWindowTitleHidden];
++		for (const auto type : { NSWindowCloseButton, NSWindowMiniaturizeButton, NSWindowZoomButton }) {
++			[[_nativeWindow standardWindowButton:type] setHidden:YES];
++		}
+ 	}
+ }
+ 
+@@ -322,6 +337,9 @@ bool nativeEventFilter(
+ #endif
+ 	[_nativeWindow setTitlebarAppearsTransparent:YES];
+ 	[_nativeWindow setTitleVisibility:NSWindowTitleHidden];
++	for (const auto type : { NSWindowCloseButton, NSWindowMiniaturizeButton, NSWindowZoomButton }) {
++		[[_nativeWindow standardWindowButton:type] setHidden:YES];
++	}
+ 	if (_observer) {
+ 		[_observer release];
+ 	}
+@@ -373,6 +391,9 @@ bool nativeEventFilter(
+ 			_owner->window()->setWindowFlag(Qt::NoTitleBarBackgroundHint);
+ 			[freshWindow setTitlebarAppearsTransparent:YES];
+ 			[freshWindow setTitleVisibility:NSWindowTitleHidden];
++			for (const auto type : { NSWindowCloseButton, NSWindowMiniaturizeButton, NSWindowZoomButton }) {
++				[[freshWindow standardWindowButton:type] setHidden:YES];
++			}
+ 			[freshWindow setStyleMask:[freshWindow styleMask]
+ 				| NSWindowStyleMaskFullSizeContentView];
+ 		}
+@@ -413,7 +434,7 @@ bool nativeEventFilter(
+ , _private(std::make_unique<Private>(this))
+ , _title(Ui::CreateChild<TitleWidget>(
+ 	window.get(),
+-	_private->customTitleHeight()))
++	std::max(_private->customTitleHeight(), st::windowTitleHeight)))
+ , _body(Ui::CreateChild<RpWidget>(window.get())) {
+ 	init();
+ 	_title->setControlsRect(_private->controlsRect());
+@@ -498,6 +519,13 @@ bool nativeEventFilter(
+ 
+ void WindowHelper::init() {
+ 	updateCustomTitleVisibility(true);
++	window()->shownValue() | rpl::on_next([=](bool shown) {
++		if (shown) {
++			QTimer::singleShot(0, window(), [=] {
++				_private->reapplyCustomTitle();
++			});
++		}
++	}, window()->lifetime());
+ 
+ 	style::PaletteChanged(
+ 	) | rpl::on_next([=] {
+diff --git a/ui/platform/mac/ui_window_title_mac.h b/ui/platform/mac/ui_window_title_mac.h
+index 9b1b097..ee81af9 100644
+--- a/ui/platform/mac/ui_window_title_mac.h
++++ b/ui/platform/mac/ui_window_title_mac.h
+@@ -21,6 +21,7 @@ struct TextStyle;
+ namespace Ui {
+ 
+ class PlainShadow;
++namespace Platform { class TitleControls; }
+ 
+ namespace Platform {
+ 
+@@ -40,6 +41,7 @@ protected:
+ 	void paintEvent(QPaintEvent *e) override;
+ 	void resizeEvent(QResizeEvent *e) override;
+ 	void mouseDoubleClickEvent(QMouseEvent *e) override;
++	void mouseMoveEvent(QMouseEvent *e) override;
+ 
+ private:
+ 	not_null<RpWidget*> window() const;
+@@ -49,6 +51,7 @@ private:
+ 	not_null<const style::WindowTitle*> _st;
+ 	std::unique_ptr<style::TextStyle> _textStyle;
+ 	object_ptr<Ui::PlainShadow> _shadow;
++	std::unique_ptr<TitleControls> _classicControls;
+ 	QString _text;
+ 	Ui::Text::String _string;
+ 	int _controlsRight = 0;
+diff --git a/ui/platform/mac/ui_window_title_mac.mm b/ui/platform/mac/ui_window_title_mac.mm
+index 1e919f5..1117702 100644
+--- a/ui/platform/mac/ui_window_title_mac.mm
++++ b/ui/platform/mac/ui_window_title_mac.mm
+@@ -6,6 +6,8 @@
+ //
+ #include "ui/platform/mac/ui_window_title_mac.h"
+ 
++#include "ui/classic_style.h"
++
+ #include "base/platform/base_platform_info.h"
+ #include "ui/platform/ui_platform_window_title.h"
+ #include "ui/widgets/buttons.h"
+@@ -25,10 +27,10 @@
+ 
+ std::shared_ptr<TitleControlsLayout> TitleControlsLayout::Create() {
+ 	return std::shared_ptr<TitleControlsLayout>(new TitleControlsLayout({
+-		.left = {
+-			TitleControls::Control::Close,
++		.right = {
+ 			TitleControls::Control::Minimize,
+ 			TitleControls::Control::Maximize,
++			TitleControls::Control::Close,
+ 		}
+ 	}));
+ }
+@@ -36,7 +38,8 @@
+ TitleWidget::TitleWidget(not_null<RpWidget*> parent, int height)
+ : RpWidget(parent)
+ , _st(&st::defaultWindowTitle)
+-, _shadow(this, st::titleShadow) {
++, _shadow(this, st::titleShadow)
++, _classicControls(std::make_unique<TitleControls>(this, st::defaultWindowTitle)) {
+ 	init(height);
+ }
+ 
+@@ -52,6 +55,7 @@
+ 
+ void TitleWidget::setStyle(const style::WindowTitle &st) {
+ 	_st = &st;
++	_classicControls->setStyle(st);
+ 	update();
+ }
+ 
+@@ -89,50 +93,24 @@
+ 		});
+ 	};
+ 
+-	const auto families = QStringList{
+-		u".AppleSystemUIFont"_q,
+-		u".SF NS Text"_q,
+-		u"Helvetica Neue"_q,
+-	};
+-	for (auto family : families) {
+-		auto font = QFont();
+-		font.setFamily(family);
+-		if (QFontInfo(font).family() == font.family()) {
+-			static const auto logged = [&] {
+-				LOG(("Title Font: %1").arg(family));
+-				return true;
+-			}();
+-			const auto apple = (family == u".AppleSystemUIFont"_q);
+-			setFromFont(style::font(
+-				apple ? 13 : (height * 15) / 24,
+-				apple ? style::FontFlag::Bold : style::FontFlag(),
+-				family));
+-			break;
+-		}
+-	}
+-	if (!_textStyle) {
+-		setFromFont(style::font(13, style::FontFlag::Bold, 0));
+-	}
++	setFromFont(st::defaultWindowTitle.style.font);
+ }
+ 
+ void TitleWidget::paintEvent(QPaintEvent *e) {
+ 	Painter p(this);
+ 
+-	const auto active = isActiveWindow();
+-	p.fillRect(rect(), active ? _st->bgActive : _st->bg);
+-
+-	p.setPen(active ? _st->fgActive : _st->fg);
+-
+-	const auto full = _string.maxWidth();
++	Classic::Panel(p, rect(), Classic::Title(), st::lineWidth);
++	p.setPen(Classic::TitleText());
+ 	const auto top = (height() - _textStyle->font->height) / 2;
+-	if (::Platform::IsMac26_0OrGreater()
+-		|| ((width() - _controlsRight * 2) < full)) {
+-		const auto left = _controlsRight;
+-		_string.drawElided(p, left, top, width() - left);
+-	} else {
+-		const auto left = (width() - full) / 2;
+-		_string.draw(p, left, top, full);
+-	}
++	const auto gap = st::windowTitleHeight / 8;
++	const auto side = st::windowTitleHeight - 2 * gap;
++	window()->windowIcon().paint(&p, QRect(gap, gap, side, side));
++	const auto left = st::windowTitleHeight + gap;
++	_string.drawElided(
++		p,
++		left,
++		top,
++		width() - left - _classicControls->geometry().width());
+ }
+ 
+ void TitleWidget::resizeEvent(QResizeEvent *e) {
+@@ -148,5 +126,11 @@
+ 	}
+ }
+ 
++void TitleWidget::mouseMoveEvent(QMouseEvent *e) {
++	if (e->buttons() & Qt::LeftButton) {
++		window()->windowHandle()->startSystemMove();
++	}
++}
++
+ } // namespace Platform
+ } // namespace Ui
+diff --git a/ui/platform/ui_platform_window_title.cpp b/ui/platform/ui_platform_window_title.cpp
+index a54b60c..94cff5c 100644
+--- a/ui/platform/ui_platform_window_title.cpp
++++ b/ui/platform/ui_platform_window_title.cpp
+@@ -6,6 +6,8 @@
+ //
+ #include "ui/platform/ui_platform_window_title.h"
+ 
++#include "ui/classic_style.h"
++
+ #include "ui/platform/ui_platform_utility.h"
+ #include "ui/widgets/buttons.h"
+ #include "ui/widgets/shadow.h"
+@@ -448,6 +450,7 @@ QRect DefaultTitleWidget::controlsGeometry() const {
+ 
+ void DefaultTitleWidget::setText(const QString &text) {
+ 	window()->setWindowTitle(text);
++	update();
+ }
+ 
+ void DefaultTitleWidget::setStyle(const style::WindowTitle &st) {
+@@ -460,10 +463,17 @@ void DefaultTitleWidget::setResizeEnabled(bool enabled) {
+ }
+ 
+ void DefaultTitleWidget::paintEvent(QPaintEvent *e) {
+-	const auto active = window()->isActiveWindow();
+-	QPainter(this).fillRect(
+-		e->rect(),
+-		active ? _controls.st()->bgActive : _controls.st()->bg);
++	auto p = QPainter(this);
++	Classic::Panel(p, rect(), Classic::Title(), st::lineWidth);
++	p.setFont(_controls.st()->style.font);
++	p.setPen(Classic::TitleText());
++	const auto gap = st::windowTitleHeight / 8;
++	const auto side = st::windowTitleHeight - 2 * gap;
++	window()->windowIcon().paint(&p, QRect(gap, gap, side, side));
++	p.drawText(
++		rect().adjusted(st::windowTitleHeight + gap, 0, -controlsGeometry().width() - gap, 0),
++		Qt::AlignVCenter | Qt::AlignLeft,
++		window()->windowTitle());
+ }
+ 
+ void DefaultTitleWidget::resizeEvent(QResizeEvent *e) {
+diff --git a/ui/platform/win/ui_window_title_win.cpp b/ui/platform/win/ui_window_title_win.cpp
+index 0311cc3..5f1082f 100644
+--- a/ui/platform/win/ui_window_title_win.cpp
++++ b/ui/platform/win/ui_window_title_win.cpp
+@@ -6,6 +6,8 @@
+ //
+ #include "ui/platform/win/ui_window_title_win.h"
+ 
++#include "ui/classic_style.h"
++
+ #include "ui/platform/win/ui_window_win.h"
+ #include "ui/widgets/buttons.h"
+ #include "ui/widgets/shadow.h"
+@@ -96,6 +98,7 @@ TitleWidget::~TitleWidget() = default;
+ 
+ void TitleWidget::setText(const QString &text) {
+ 	window()->setWindowTitle(text);
++	update();
+ }
+ 
+ void TitleWidget::setStyle(const style::WindowTitle &st) {
+@@ -136,10 +139,17 @@ void TitleWidget::setResizeEnabled(bool enabled) {
+ }
+ 
+ void TitleWidget::paintEvent(QPaintEvent *e) {
+-	const auto active = window()->isActiveWindow();
+-	QPainter(this).fillRect(
+-		e->rect(),
+-		active ? _controls.st()->bgActive : _controls.st()->bg);
++	auto p = QPainter(this);
++	Classic::Panel(p, rect(), Classic::Title(), st::lineWidth);
++	p.setFont(_controls.st()->style.font);
++	p.setPen(Classic::TitleText());
++	const auto gap = st::windowTitleHeight / 8;
++	const auto side = st::windowTitleHeight - 2 * gap;
++	window()->windowIcon().paint(&p, QRect(gap, gap, side, side));
++	p.drawText(
++		rect().adjusted(st::windowTitleHeight + gap, 0, -_controls.geometry().width() - gap, 0),
++		Qt::AlignVCenter | Qt::AlignLeft,
++		window()->windowTitle());
+ }
+ 
+ void TitleWidget::resizeEvent(QResizeEvent *e) {
+diff --git a/ui/round_rect.cpp b/ui/round_rect.cpp
+index d80ff9f..7a48274 100644
+--- a/ui/round_rect.cpp
++++ b/ui/round_rect.cpp
+@@ -6,6 +6,10 @@
+ //
+ #include "ui/round_rect.h"
+ 
++#include "styles/style_basic.h"
++
++#include "ui/classic_style.h"
++
+ #include "ui/style/style_core.h"
+ #include "ui/image/image_prepare.h"
+ #include "ui/ui_utility.h"
+@@ -169,8 +173,7 @@ void RoundRect::paint(
+ 		QPainter &p,
+ 		const QRect &rect,
+ 		RectParts parts) const {
+-	validate();
+-	DrawRoundedRect(p, rect, _color, _corners, parts);
++	Classic::Panel(p, rect, _color->c, st::lineWidth);
+ }
+ 
+ void RoundRect::paintSomeRounded(
+diff --git a/ui/widgets/buttons.cpp b/ui/widgets/buttons.cpp
+index 690ba6f..7393f3f 100644
+--- a/ui/widgets/buttons.cpp
++++ b/ui/widgets/buttons.cpp
+@@ -6,6 +6,8 @@
+ //
+ #include "ui/widgets/buttons.h"
+ 
++#include "ui/classic_style.h"
++
+ #include "ui/effects/ripple_animation.h"
+ #include "ui/effects/cross_animation.h"
+ #include "ui/effects/numbers_animation.h"
+@@ -271,9 +273,8 @@ void FlatButton::paintEvent(QPaintEvent *e) {
+ 	QPainter p(this);
+ 
+ 	const auto inner = QRect(0, height() - _st.height, width(), _st.height);
+-	p.fillRect(inner, isOver() ? _st.overBgColor : _st.bgColor);
+-
+-	paintRipple(p, 0, 0);
++	Classic::Panel(p, inner, Classic::Surface(), st::lineWidth,
++		isDown() ? Classic::Relief::Sunken : Classic::Relief::Raised);
+ 
+ 	p.setFont(isOver() ? _st.overFont : _st.font);
+ 	p.setRenderHint(QPainter::TextAntialiasing);
+@@ -484,33 +485,8 @@ void RoundButton::paintEvent(QPaintEvent *e) {
+ 		rounded = QRect(0, rounded.top(), innerWidth - _fullWidthOverride, rounded.height());
+ 	}
+ 	const auto drawRect = [&](const RoundRect &rect) {
+-		const auto fill = myrtlrect(rounded);
+-		if (_fullRadius) {
+-			const auto radius = rounded.height() / 2;
+-			PainterHighQualityEnabler hq(p);
+-			p.setPen(_penOverride ? *_penOverride : Qt::NoPen);
+-			p.setBrush(_brushOverride ? *_brushOverride : rect.color()->b);
+-			p.drawRoundedRect(fill, radius, radius);
+-		} else if (_cornerRadii) {
+-			auto hq = PainterHighQualityEnabler(p);
+-			p.setPen(_penOverride ? *_penOverride : Qt::NoPen);
+-			p.setBrush(_brushOverride ? *_brushOverride : rect.color()->b);
+-			p.drawPath(
+-				ComplexRoundedRectPath(
+-					fill,
+-					(*_cornerRadii)[0],
+-					(*_cornerRadii)[1],
+-					(*_cornerRadii)[2],
+-					(*_cornerRadii)[3]));
+-		} else if (_brushOverride) {
+-			PainterHighQualityEnabler hq(p);
+-			p.setPen(_penOverride ? *_penOverride : Qt::NoPen);
+-			p.setBrush(*_brushOverride);
+-			const auto radius = _st.radius ? _st.radius : st::buttonRadius;
+-			p.drawRoundedRect(fill, radius, radius);
+-		} else {
+-			rect.paint(p, fill);
+-		}
++		Classic::Panel(p, myrtlrect(rounded), rect.color()->c, st::lineWidth,
++			isDown() ? Classic::Relief::Sunken : Classic::Relief::Raised);
+ 	};
+ 	if (_penOverride && !_rippleOverride) {
+ 		paintRipple(p, rounded.topLeft());
+@@ -647,6 +623,12 @@ float64 IconButton::iconOverOpacity() const {
+ 
+ void IconButton::paintEvent(QPaintEvent *e) {
+ 	Painter p(this);
++	const auto guard = gsl::finally([&] {
++		p.setOpacity(1.);
++		Classic::Frame(p, rect(), st::lineWidth,
++			isDown() ? Classic::Relief::Sunken : Classic::Relief::Raised);
++	});
++	p.fillRect(rect(), Classic::Surface());
+ 
+ 	paintRipple(p, _st.rippleAreaPosition, _rippleColorOverride ? &(*_rippleColorOverride)->c : nullptr);
+ 
+@@ -719,7 +701,7 @@ QPoint IconButton::prepareRippleStartPosition() const {
+ }
+ 
+ QImage IconButton::prepareRippleMask() const {
+-	return RippleAnimation::EllipseMask(QSize(_st.rippleAreaSize, _st.rippleAreaSize));
++	return RippleAnimation::RectMask(QSize(_st.rippleAreaSize, _st.rippleAreaSize));
+ }
+ 
+ CrossButton::CrossButton(QWidget *parent, const style::CrossButton &st) : RippleButton(parent, st.ripple)
+@@ -976,6 +958,11 @@ int SettingsButton::fullTextWidth() const {
+ 
+ void SettingsButton::paintEvent(QPaintEvent *e) {
+ 	Painter p(this);
++	const auto frame = gsl::finally([&] {
++		p.setOpacity(1.);
++		Classic::Frame(p, rect(), st::lineWidth,
++			isDown() ? Classic::Relief::Sunken : Classic::Relief::Raised);
++	});
+ 
+ 	const auto paintOver = (isOver() || isDown()) && !isDisabled();
+ 	paintBg(p, e->rect(), paintOver);
+diff --git a/ui/widgets/fields/input_field.cpp b/ui/widgets/fields/input_field.cpp
+index d57ac56..21f409b 100644
+--- a/ui/widgets/fields/input_field.cpp
++++ b/ui/widgets/fields/input_field.cpp
+@@ -6,6 +6,8 @@
+ //
+ #include "ui/widgets/fields/input_field.h"
+ 
++#include "ui/classic_style.h"
++
+ #include "base/platform/base_platform_info.h"
+ #include "base/qt_signal_producer.h"
+ #include "base/qt/qt_common_adapters.h"
+@@ -83,6 +85,17 @@ const auto kHardLine = QChar::ParagraphSeparator;
+ // QTextCharFormat with the same properties, including kCustomEmojiText.
+ auto GlobalCustomEmojiCounter = 0;
+ 
++QMargins ClassicTextMargins(const style::InputField &field) {
++	const auto &margins = field.textMargins;
++	const auto padding = st::classicInputPadding;
++	return {
++		std::max(margins.left(), padding),
++		std::max(margins.top(), padding),
++		std::max(margins.right(), padding),
++		std::max(margins.bottom(), padding),
++	};
++}
++
+ class InputDocument : public QTextDocument {
+ public:
+ 	InputDocument(QObject *parent, const style::InputField &st);
+@@ -2844,9 +2857,10 @@ bool InputField::heightAutoupdated() {
+ 
+ 	SendPendingMoveResizeEvents(this);
+ 
++	const auto margins = ClassicTextMargins(_st);
+ 	const auto contentHeight = int(std::ceil(document()->size().height()))
+-		+ _st.textMargins.top()
+-		+ _st.textMargins.bottom()
++		+ margins.top()
++		+ margins.bottom()
+ 		+ _additionalMargins.top()
+ 		+ _additionalMargins.bottom();
+ 	const auto newHeight = std::clamp(contentHeight, _minHeight, _maxHeight);
+@@ -2934,6 +2948,15 @@ void InputField::paintEvent(QPaintEvent *e) {
+ 	const auto errorDegree = _a_error.value(_error ? 1. : 0.);
+ 	const auto focusedDegree = _a_focused.value(_focused ? 1. : 0.);
+ 	paintSurrounding(p, r, errorDegree, focusedDegree);
++	Classic::Panel(p, rect(), _st.textBg->c, st::lineWidth, Classic::Relief::Sunken);
++	if (errorDegree > 0.) {
++		p.fillRect(
++			2 * st::lineWidth,
++			height() - 3 * st::lineWidth,
++			width() - 4 * st::lineWidth,
++			st::lineWidth,
++			_st.placeholderFgError);
++	}
+ 
+ 	const auto margins = placeholderPaintMargins();
+ 
+@@ -4167,7 +4190,7 @@ void InputField::highlightMarkdown() {
+ QMargins InputField::fullTextMargins() const {
+ 	const auto skip = int(base::SafeRound(
+ 		_inner->document()->documentMargin()));
+-	return _st.textMargins
++	return ClassicTextMargins(_st)
+ 		+ QMargins(skip, skip, skip, 0)
+ 		+ _additionalMargins
+ 		+ _customFontMargins;
+@@ -6298,18 +6321,24 @@ void InputField::insertFromMimeDataInner(const QMimeData *source) {
+ 
+ void InputField::resizeEvent(QResizeEvent *e) {
+ 	refreshPlaceholder(_placeholderFull.current());
+-	_inner->setGeometry(rect().marginsRemoved(
+-		_st.textMargins + _additionalMargins + _customFontMargins));
+-	if (_spoilerOverlay) {
+-		_spoilerOverlay->setGeometry(_inner->rect());
+-	}
++	const auto syncInnerGeometry = [&] {
++		_inner->setGeometry(rect().marginsRemoved(
++			ClassicTextMargins(_st) + _additionalMargins + _customFontMargins));
++		if (_spoilerOverlay) {
++			_spoilerOverlay->setGeometry(_inner->rect());
++		}
++	};
++	syncInnerGeometry();
+ 	_borderAnimationStart = width() / 2;
+ 	RpWidget::resizeEvent(e);
+ 	checkContentHeight();
++	// Reflow can resize the field synchronously while the editor is resizing.
++	// Keep the editor inside the final field bounds after that nested resize.
++	syncInnerGeometry();
+ }
+ 
+ void InputField::refreshPlaceholder(const QString &text) {
+-	const auto margins = _st.textMargins
++	const auto margins = ClassicTextMargins(_st)
+ 		+ _st.placeholderMargins
+ 		+ _additionalMargins
+ 		+ _customFontMargins;
+diff --git a/ui/widgets/fields/masked_input_field.cpp b/ui/widgets/fields/masked_input_field.cpp
+index ef96309..561fc38 100644
+--- a/ui/widgets/fields/masked_input_field.cpp
++++ b/ui/widgets/fields/masked_input_field.cpp
+@@ -6,6 +6,8 @@
+ //
+ #include "ui/widgets/fields/masked_input_field.h"
+ 
++#include "ui/classic_style.h"
++
+ #include "base/qt/qt_common_adapters.h"
+ #include "ui/painter.h"
+ #include "ui/widgets/popup_menu.h"
+@@ -221,7 +223,10 @@ void MaskedInputField::paintEvent(QPaintEvent *e) {
+ 	}
+ 
+ 	paintAdditionalPlaceholder(p);
++	p.end();
+ 	QLineEdit::paintEvent(e);
++	auto borderPainter = QPainter(this);
++	Classic::Frame(borderPainter, rect(), st::lineWidth, Classic::Relief::Sunken);
+ }
+ 
+ QString MaskedInputField::getDisplayedText() const {
+diff --git a/ui/widgets/menu/menu_action.cpp b/ui/widgets/menu/menu_action.cpp
+index 4c16b67..46eb550 100644
+--- a/ui/widgets/menu/menu_action.cpp
++++ b/ui/widgets/menu/menu_action.cpp
+@@ -6,6 +6,8 @@
+ //
+ #include "ui/widgets/menu/menu_action.h"
+ 
++#include "ui/classic_style.h"
++
+ #include "ui/effects/ripple_animation.h"
+ #include "ui/painter.h"
+ 
+@@ -102,6 +104,9 @@ void Action::paintBackground(QPainter &p, bool selected) {
+ 	p.fillRect(
+ 		QRect(0, 0, width(), _height),
+ 		selected ? _st.itemBgOver : _st.itemBg);
++	if (selected) {
++		Classic::Frame(p, QRect(0, 0, width(), _height), st::lineWidth, Classic::Relief::Sunken);
++	}
+ }
+ 
+ void Action::paintText(Painter &p) {
+@@ -121,7 +126,11 @@ void Action::paint(Painter &p) {
+ 		RippleButton::paintRipple(p, 0, 0);
+ 	}
+ 	if (const auto icon = (selected ? _iconOver : _icon)) {
+-		icon->paint(p, _st.itemIconPosition, width());
++		if (selected) {
++			icon->paint(p, _st.itemIconPosition, width(), _st.itemFgOver->c);
++		} else {
++			icon->paint(p, _st.itemIconPosition, width());
++		}
+ 	}
+ 	p.setPen(selected ? _st.itemFgOver : (enabled ? _st.itemFg : _st.itemFgDisabled));
+ 	paintText(p);
+diff --git a/ui/widgets/popup_menu.cpp b/ui/widgets/popup_menu.cpp
+index 8a2ffc7..044cf13 100644
+--- a/ui/widgets/popup_menu.cpp
++++ b/ui/widgets/popup_menu.cpp
+@@ -6,6 +6,8 @@
+ //
+ #include "ui/widgets/popup_menu.h"
+ 
++#include "ui/classic_style.h"
++
+ #include "base/platform/base_platform_info.h"
+ #include "base/invoke_queued.h"
+ #include "base/weak_qptr.h"
+@@ -269,6 +271,8 @@ void PopupMenu::updateRoundingOverlay() {
+ 			p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+ 			_boxShadow.paint(p, _inner, _st.radius);
+ 		}
++		p.setCompositionMode(QPainter::CompositionMode_SourceOver);
++		Classic::Frame(p, _inner, st::lineWidth);
+ 	}, _roundingOverlay->lifetime());
+ 
+ 	_roundingOverlay->setAttribute(Qt::WA_TransparentForMouseEvents);
+@@ -421,6 +425,7 @@ void PopupMenu::paintEvent(QPaintEvent *e) {
+ }
+ 
+ void PopupMenu::paintBg(QPainter &p) {
++	Classic::Frame(p, _inner, st::lineWidth);
+ 	if (!_useTransparency) {
+ 		p.fillRect(0, 0, width() - _padding.right(), _padding.top(), _st.shadowFallback);
+ 		p.fillRect(width() - _padding.right(), 0, _padding.right(), height() - _padding.bottom(), _st.shadowFallback);
+diff --git a/ui/widgets/scroll_area.cpp b/ui/widgets/scroll_area.cpp
+index 36af139..d105c4c 100644
+--- a/ui/widgets/scroll_area.cpp
++++ b/ui/widgets/scroll_area.cpp
+@@ -6,6 +6,8 @@
+ //
+ #include "ui/widgets/scroll_area.h"
+ 
++#include "ui/classic_style.h"
++
+ #include "ui/painter.h"
+ #include "ui/ui_utility.h"
+ #include "base/qt/qt_common_adapters.h"
+@@ -308,19 +310,8 @@ void ScrollBar::paintEvent(QPaintEvent *e) {
+ 	auto bar = anim::color(_st->barBg, _st->barBgOver, _a_barOver.value((_overbar || _moving) ? 1. : 0.));
+ 	bar.setAlpha(anim::interpolate(0, bar.alpha(), opacity));
+ 	const auto outer = QRect(deltal, deltat, width() - deltal - deltar, height() - deltat - deltab);
+-	const auto radius = (_st->round < 0)
+-		? (std::min(outer.width(), outer.height()) / 2.)
+-		: _st->round;
+-	if (radius) {
+-		PainterHighQualityEnabler hq(p);
+-		p.setBrush(bg);
+-		p.drawRoundedRect(outer, radius, radius);
+-		p.setBrush(bar);
+-		p.drawRoundedRect(_bar, radius, radius);
+-	} else {
+-		p.fillRect(outer, bg);
+-		p.fillRect(_bar, bar);
+-	}
++	p.fillRect(outer, bg);
++	Classic::Panel(p, _bar, bar, st::lineWidth);
+ }
+ 
+ void ScrollBar::hideTimeout(crl::time dt) {
+diff --git a/ui/widgets/side_bar_button.cpp b/ui/widgets/side_bar_button.cpp
+index 7633972..14a9b92 100644
+--- a/ui/widgets/side_bar_button.cpp
++++ b/ui/widgets/side_bar_button.cpp
+@@ -6,6 +6,8 @@
+ //
+ #include "ui/widgets/side_bar_button.h"
+ 
++#include "ui/classic_style.h"
++
+ #include "ui/effects/ripple_animation.h"
+ #include "ui/painter.h"
+ #include "styles/style_widgets.h"
+@@ -166,8 +168,15 @@ void SideBarButton::paintEvent(QPaintEvent *e) {
+ 	auto p = Painter(this);
+ 	const auto clip = e->rect();
+ 
+-	const auto &bg = _active ? _st.textBgActive : _st.textBg;
++	const auto bg = _active ? Classic::Title() : Classic::Surface();
+ 	p.fillRect(clip, bg);
++	const auto frame = gsl::finally([&] {
++		p.resetTransform();
++		p.setClipping(false);
++		p.setOpacity(1.);
++		Classic::Frame(p, rect(), st::lineWidth,
++			(_active || isDown()) ? Classic::Relief::Sunken : Classic::Relief::Raised);
++	});
+ 
+ 	RippleButton::paintRipple(p, 0, 0);
+ 
+@@ -183,11 +192,11 @@ void SideBarButton::paintEvent(QPaintEvent *e) {
+ 			validateIconCache();
+ 			p.drawImage(x, y, _active ? _iconCacheActive : _iconCache);
+ 		} else {
+-			icon.paint(p, x, y, width());
++			icon.paint(p, x, y, width(), _active ? Classic::TitleText() : Classic::Text());
+ 		}
+ 	}
+ 	if (_showText) {
+-		p.setPen(_active ? _st.textFgActive : _st.textFg);
++		p.setPen(_active ? Classic::TitleText() : Classic::Text());
+ 		_text.draw(p, {
+ 			.position = { _st.textSkip, _st.textTop },
+ 			.availableWidth = (width() - 2 * _st.textSkip),
+@@ -206,13 +215,10 @@ void SideBarButton::paintEvent(QPaintEvent *e) {
+ 
+ 		auto hq = PainterHighQualityEnabler(p);
+ 		p.setPen(Qt::NoPen);
+-		p.setBrush(_active
+-			? (_badgeMuted ? _st.badgeBgMutedActive : _st.badgeBgActive)
+-			: (_badgeMuted ? _st.badgeBgMuted : _st.badgeBg));
+-		const auto r = _st.badgeHeight / 2;
+-		p.drawRoundedRect(x, y, _iconCacheBadgeWidth, _st.badgeHeight, r, r);
++		Classic::Panel(p, QRect(x, y, _iconCacheBadgeWidth, _st.badgeHeight),
++			_badgeMuted ? Classic::Surface() : Classic::Title(), st::lineWidth);
+ 
+-		p.setPen(_st.badgeFg);
++		p.setPen(_badgeMuted ? Classic::Text() : Classic::TitleText());
+ 		_badge.draw(
+ 			p,
+ 			x + (_iconCacheBadgeWidth - _badge.maxWidth()) / 2,
+@@ -290,7 +296,7 @@ void SideBarButton::validateIconCache() {
+ 	image.fill(Qt::transparent);
+ 	{
+ 		auto p = QPainter(&image);
+-		icon.paint(p, 0, 0, icon.width());
++		icon.paint(p, 0, 0, icon.width(), _active ? Classic::TitleText() : Classic::Text());
+ 		p.setCompositionMode(QPainter::CompositionMode_Source);
+ 		auto hq = PainterHighQualityEnabler(p);
+ 		if (_iconCacheBadgeWidth) {
+@@ -304,14 +310,11 @@ void SideBarButton::validateIconCache() {
+ 				width() - _iconCacheBadgeWidth - st::defaultScrollArea.width);
+ 			const auto x = pillLeft - iconLeft();
+ 			const auto y = _st.badgePosition.y() - iconTop();
+-			const auto r = _st.badgeHeight / 2.;
+-			p.drawRoundedRect(
++			p.drawRect(
+ 				x,
+ 				y,
+ 				_iconCacheBadgeWidth,
+-				_st.badgeHeight,
+-				r,
+-				r);
++				_st.badgeHeight);
+ 		}
+ 		if (_lock.locked && !_showText) {
+ 			p.setPen(Qt::NoPen);
+@@ -333,7 +336,7 @@ void SideBarButton::validateLockIconCache() {
+ 		return;
+ 	}
+ 	(_active ? _lock.iconCacheActive : _lock.iconCache)
+-		= SideBarLockIcon(_st.textFg);
++		= SideBarLockIcon(_active ? st::windowFgActive : st::windowFg);
+ }
+ 
+ QImage SideBarLockIcon(const style::color &fg) {
+diff --git a/ui/widgets/widgets.style b/ui/widgets/widgets.style
+index 8b8df7d..2282f70 100644
+--- a/ui/widgets/widgets.style
++++ b/ui/widgets/widgets.style
+@@ -958,9 +958,9 @@ defaultMenu: Menu {
+ 	skip: 0px;
+ 
+ 	itemBg: windowBg;
+-	itemBgOver: windowBgOver;
++	itemBgOver: windowBgActive;
+ 	itemFg: windowFg;
+-	itemFgOver: windowFgOver;
++	itemFgOver: windowFgActive;
+ 	itemFgDisabled: menuFgDisabled;
+ 	itemFgShortcut: windowSubTextFg;
+ 	itemFgShortcutOver: windowSubTextFgOver;
+@@ -992,7 +992,7 @@ defaultPopupMenu: PopupMenu {
+ 
+ 	menu: defaultMenu;
+ 
+-	radius: 8px;
++	radius: 0px;
+ 	duration: 150;
+ 	showDuration: 200;
+ }
+@@ -1025,9 +1025,11 @@ boxTextStyle: TextStyle(defaultTextStyle) {
+ 	font: font(boxFontSize);
+ }
+ 
++classicInputPadding: 4px;
++
+ defaultInputField: InputField {
+-	textBg: windowBg;
+-	textBgActive: windowBg;
++	textBg: filterInputInactiveBg;
++	textBgActive: filterInputActiveBg;
+ 	textFg: windowFg;
+ 	textMarkBg: windowBgOver;
+ 	textMargins: margins(0px, 28px, 0px, 4px);
+@@ -1566,8 +1568,8 @@ defaultMultilineToast: Toast(defaultToast) {
+ 
+ // Windows specific title
+ 
+-windowTitleButtonWidth: 36px;
+-windowTitleHeight: 24px;
++windowTitleButtonWidth: 30px;
++windowTitleHeight: 30px;
+ windowTitleButton: IconButton {
+ 	width: windowTitleButtonWidth;
+ 	height: windowTitleHeight;
