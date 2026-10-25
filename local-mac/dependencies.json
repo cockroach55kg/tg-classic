@@ -1,0 +1,58 @@
+{
+  "git": {
+    "ffmpeg": {
+      "commit": "1041abdc962f4cc4f394aa8de9dc5236c0c3b9e7",
+      "url": "https://github.com/FFmpeg/FFmpeg.git"
+    },
+    "ada": {
+      "commit": "6b4612162c34e7ffcee08c03b107b449e07a5683",
+      "url": "https://github.com/ada-url/ada.git"
+    },
+    "openal-soft": {
+      "commit": "c2eab43d72890c58d4b51d5d98eafb9f011e1c89",
+      "url": "https://github.com/telegramdesktop/openal-soft.git"
+    },
+    "tg_owt": {
+      "commit": "07fb35bc33b3e79125a1beab7690e830f183f5d8",
+      "url": "https://github.com/desktop-app/tg_owt.git"
+    },
+    "tde2e": {
+      "commit": "51743dfd01dff6179e2d8f7095729caa4e2222e9",
+      "url": "https://github.com/tdlib/td.git"
+    },
+    "rnnoise": {
+      "commit": "d8ea2b0ec6a88f8a68d6904d75e33b4f09cb2987",
+      "url": "https://github.com/desktop-app/rnnoise.git"
+    },
+    "tlottie": {
+      "commit": "92df98dc209bc39b1e567ec74a8c86a0af5239de",
+      "url": "https://github.com/dkaraush/tlottie.git"
+    },
+    "wallet-engine": {
+      "commit": "e59e0d89d7ee90c388bf36e3334c5b276f396697",
+      "url": "https://github.com/i582/wallet-engine.git"
+    },
+    "rust-patches": {
+      "commit": "aec474953ff7ee9b6e4cd9b8658288ea86d124f3",
+      "url": "https://github.com/desktop-app/patches.git"
+    }
+  },
+  "archives": {
+    "glib": {
+      "version": "2.90.1",
+      "sha256": "93c941aa17d5eb1d53fe838365f29a8b4e539c222a256d974ec8f30fc413e396"
+    },
+    "harfbuzz": {
+      "version": "14.6.0",
+      "sha256": "d07a007327277708a2a73ae437887cdbaf282937f6d03ca5467723e9099af586"
+    },
+    "md4c": {
+      "version": "0.6.0",
+      "sha256": "4d151298125a81da3b2efa2e0eed8bdb7a9318569804e4fa4d7a2375ab83ef70"
+    }
+  },
+  "qt": "6.11.2 Homebrew arm64_sonoma",
+  "architecture": "arm64",
+  "minimum_macos": "14.0",
+  "configuration": "Debug -O1 -g0"
+}

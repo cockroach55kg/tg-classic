@@ -1,0 +1,33 @@
+{
+  "name": "TG Classic Android",
+  "upstream_url": "https://github.com/DrKLO/Telegram.git",
+  "upstream_commit": "0aae959806c57be8ad457980f2a5c6277ff18635",
+  "upstream_version": "13.0.3",
+  "application_id": "com.tgclassic.client.web",
+  "variant": "afatDebug",
+  "architecture": "arm64-v8a",
+  "min_sdk": 23,
+  "compile_sdk": 36,
+  "ndk": "27.2.12479018",
+  "status": "Classic source overlay implemented; APK build pending",
+  "icon_source": "../assets/TG Classic.png",
+  "icon_sha256": "6935eeffb8705c147d87cd55c10a46bb5cd8330ccd3d88c71197dadfe1427644",
+  "patch_sha256": {
+    "ui.patch": "95ce8bd9ab43225f79f1010a50c00271566e12ac10752f8a138d6ba7a583820d"
+  },
+  "overlay_sha256": {
+    "overlay/org/telegram/ui/Classic/ClassicStyle.java": "2a88537eeb52857fed2a5a7470e79164708ebb17bb46ab911cf280087f5cb7c1",
+    "overlay/org/telegram/ui/Classic/ClassicPalette.java": "7582877fcdd0e392ce0e30a4fdc21377a3b5aa9c4d1480f2f8bb55176aa5e304",
+    "resources/TMessagesProj_AppStandalone/src/main/res/mipmap-mdpi/ic_launcher_sa.png": "ebabef41603855704c4785466dce83633287d726ce03c44cb7e2dc84be2a24b6",
+    "resources/TMessagesProj_AppStandalone/src/main/res/mipmap-hdpi/ic_launcher_sa.png": "f41cadf6715fe254ff0a7d5ae41a00bddffd37bac0213147b912c09a9b871178",
+    "resources/TMessagesProj_AppStandalone/src/main/res/drawable/tg_classic_monochrome.xml": "c9b37318dc14ffe6297986744c2a20f63baed0accd82241a5777e5b27d4f6e77",
+    "resources/TMessagesProj_AppStandalone/src/main/res/drawable/tg_classic_icon_inset.xml": "2db0ace795a811ded27d28c5cc0956659fb2aa2fbf32b2affd831717b24099a8",
+    "resources/TMessagesProj_AppStandalone/src/main/res/mipmap-xxxhdpi/ic_launcher_sa.png": "2ce005a0348326c9cf75407cf7140b9ca2e20f6e7db17b574c15196e99c17c04",
+    "resources/TMessagesProj_AppStandalone/src/main/res/mipmap-xxhdpi/ic_launcher_sa.png": "9bb90da852e802b4ae15a6d66867043e57f5819b4268a0d18f788388b1017bd3",
+    "resources/TMessagesProj_AppStandalone/src/main/res/values/classic.xml": "fa413b9dce12eba05ceb21a8d2b0ca2155feb96b9534657c6ca16e955398a13b",
+    "resources/TMessagesProj_AppStandalone/src/main/res/drawable-nodpi/tg_classic_launcher.png": "6935eeffb8705c147d87cd55c10a46bb5cd8330ccd3d88c71197dadfe1427644",
+    "resources/TMessagesProj_AppStandalone/src/main/res/mipmap-xhdpi/ic_launcher_sa.png": "490931098eb04fc216daad678ef8c674f566d3ce90910380c1ca0569511d33f9",
+    "resources/TMessagesProj_AppStandalone/src/main/res/mipmap-anydpi-v26/ic_launcher_sa.xml": "493ad18b619bb295e4538b4e7a77658866909d8797c8aa12684e44367a9fdb94",
+    "resources/TMessagesProj/src/main/res/values-ru/classic.xml": "d76c8804f6c8564e562ffb49d4c6db2ef88a899ed110c1aa26986ac987807664"
+  }
+}
