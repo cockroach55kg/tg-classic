@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 """Build the independent arm64 Android preview; signing is done locally."""
-import argparse,json,os,subprocess,shutil,hashlib,zipfile
+import argparse,json,os,subprocess,shutil,hashlib,zipfile,re
 from pathlib import Path
 root=Path(__file__).resolve().parent
 p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=root/'upstream');p.add_argument('--sdk',type=Path);p.add_argument('--check',action='store_true');args=p.parse_args();source=args.source.resolve()
 sdk=args.sdk or (Path(os.environ['ANDROID_HOME']) if os.environ.get('ANDROID_HOME') else root/'local/sdk');sdk=sdk.resolve()
 env=dict(os.environ)
+api_file=root.parent/'.private/telegram-api.json'
+if api_file.is_file() and not (env.get('TGCLASSIC_API_ID') and env.get('TGCLASSIC_API_HASH')):
+ credentials=json.loads(api_file.read_text())
+ api_id=str(credentials.get('api_id','')).strip();api_hash=str(credentials.get('api_hash','')).strip()
+ assert api_id.isdigit() and int(api_id)>0 and re.fullmatch(r'[0-9a-fA-F]{32}',api_hash),'Invalid Telegram API configuration format.'
+ env['TGCLASSIC_API_ID']=api_id;env['TGCLASSIC_API_HASH']=api_hash
 if not env.get('JAVA_HOME'):
  homes=list((root/'local/jdk').glob('*/Contents/Home'))
  if homes: env['JAVA_HOME']=str(homes[0])
@@ -30,5 +36,5 @@ out=root.parent/'artifacts/android';out.mkdir(parents=True,exist_ok=True);target
 with zipfile.ZipFile(target) as z:
  assert z.testzip() is None
  assert 'lib/arm64-v8a/libtmessages.49.so' in z.namelist(),'Missing native Telegram library.'
-result={'application':str(target),'architecture':'arm64-v8a','application_id':'com.tgclassic.client.web','configuration':'Debug','local_signing_pending':True,'sha256':hashlib.sha256(target.read_bytes()).hexdigest()}
+result={'application':str(target),'architecture':'arm64-v8a','application_id':'com.tgclassic.client.web','configuration':'Debug','test_api':env.get('TGCLASSIC_TEST_API')=='true','local_signing_pending':True,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'source_manifest_sha256':hashlib.sha256((root/'manifest.json').read_bytes()).hexdigest()}
 (out/'builder-info.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

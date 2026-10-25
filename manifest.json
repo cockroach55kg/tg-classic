@@ -1,6 +1,6 @@
 {
   "name": "TG Classic",
-  "status": "r4 native macOS arm64 Debug build verified and installed; 211 native checks passed",
+  "status": "r4 macOS arm64 verified and installed; Windows x64 Debug preview built and empty-profile startup verified",
   "upstream_url": "https://github.com/telegramdesktop/tdesktop.git",
   "upstream_tag": "v7.3.3",
   "upstream_commit": "5c674f1f6a0f6ace55b67f8bc295138680fe588b",
@@ -60,5 +60,17 @@
     "legacy_bundle_identifier": "com.wecid.classic",
     "legacy_account_data_directory_retained": true,
     "independent_icon": "assets/TG Classic.icns"
+  },
+  "native_windows": {
+    "architecture": "x64",
+    "configuration": "Debug",
+    "upstream_test_api": true,
+    "authenticode_signed": false,
+    "build_run": "https://github.com/cockroach55kg/tg-classic/actions/runs/40186825974",
+    "build_source_commit": "14dde67",
+    "startup_run": "https://github.com/cockroach55kg/tg-classic/actions/runs/40211639958",
+    "startup_foreground_seconds": 15,
+    "native_window_verified": true,
+    "authenticated_session_tested": false
   }
 }

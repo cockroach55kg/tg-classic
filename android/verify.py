@@ -12,6 +12,7 @@ p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--serial', default='emulator-5556')
 p.add_argument('--sdk', type=Path, default=ROOT / 'local/sdk')
 p.add_argument('--apk', type=Path, default=ROOT.parent / 'artifacts/android/TG-Classic-Android-arm64.apk')
+p.add_argument('--reset', action='store_true', help='Reset only this explicitly named QA emulator app before launch.')
 args = p.parse_args()
 assert args.serial.startswith('emulator-'), 'This check never installs on a physical device.'
 adb = [str(args.sdk / 'platform-tools/adb'), '-s', args.serial]
@@ -24,6 +25,8 @@ out.mkdir(parents=True, exist_ok=True)
 package = 'com.tgclassic.client.web'
 component = package + '/org.telegram.ui.LaunchActivity'
 print(run('install', '-r', str(args.apk)), flush=True)
+if args.reset:
+    assert run('shell', 'pm', 'clear', package).strip() == 'Success'
 run('logcat', '-c')
 started = run('shell', 'am', 'start', '-W', '-n', component)
 assert 'Error:' not in started, started

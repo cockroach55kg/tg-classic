@@ -9,14 +9,14 @@
   "min_sdk": 23,
   "compile_sdk": 36,
   "ndk": "27.2.12479018",
-  "status": "Classic source overlay implemented; APK build pending",
+  "status": "Signed arm64 Debug preview built; Android 15 empty-profile startup and onboarding day/night visuals verified",
   "icon_source": "../assets/TG Classic.png",
   "icon_sha256": "6935eeffb8705c147d87cd55c10a46bb5cd8330ccd3d88c71197dadfe1427644",
   "patch_sha256": {
-    "ui.patch": "f69c034000ae7e182bc7e5b8a48960261b1ead041e8fc55e1d023437e99da4d7"
+    "ui.patch": "a622a4d7e16e7ec78300875279ea6561b70927cc640b5f0f391ed9f1510eb672"
   },
   "overlay_sha256": {
-    "overlay/org/telegram/ui/Classic/ClassicStyle.java": "2a88537eeb52857fed2a5a7470e79164708ebb17bb46ab911cf280087f5cb7c1",
+    "overlay/org/telegram/ui/Classic/ClassicStyle.java": "edbc0e58898ec80c4a06f0a261491c178bfdb99d64e34f86ac37b87bd04dbb26",
     "overlay/org/telegram/ui/Classic/ClassicPalette.java": "fdeb76bcc68e184d819939cc924a191d292724d9877d3133ec66a24fec66fca6",
     "resources/TMessagesProj_AppStandalone/src/main/res/mipmap-mdpi/ic_launcher_sa.png": "ebabef41603855704c4785466dce83633287d726ce03c44cb7e2dc84be2a24b6",
     "resources/TMessagesProj_AppStandalone/src/main/res/mipmap-hdpi/ic_launcher_sa.png": "f41cadf6715fe254ff0a7d5ae41a00bddffd37bac0213147b912c09a9b871178",
@@ -29,5 +29,17 @@
     "resources/TMessagesProj_AppStandalone/src/main/res/mipmap-xhdpi/ic_launcher_sa.png": "490931098eb04fc216daad678ef8c674f566d3ce90910380c1ca0569511d33f9",
     "resources/TMessagesProj_AppStandalone/src/main/res/mipmap-anydpi-v26/ic_launcher_sa.xml": "493ad18b619bb295e4538b4e7a77658866909d8797c8aa12684e44367a9fdb94",
     "resources/TMessagesProj/src/main/res/values-ru/classic.xml": "d76c8804f6c8564e562ffb49d4c6db2ef88a899ed110c1aa26986ac987807664"
+  },
+  "build_revision": "android-r1",
+  "verification": {
+    "android_release": "15",
+    "api_level": 35,
+    "startup_foreground_seconds": 15,
+    "account": "empty test profile",
+    "day_night_onboarding_visually_checked": true,
+    "authenticated_messaging_tested": false,
+    "push_delivery_tested": false,
+    "native_elf_alignment_bytes": 16384,
+    "test_api": true
   }
 }

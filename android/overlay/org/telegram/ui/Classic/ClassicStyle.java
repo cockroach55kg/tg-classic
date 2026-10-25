@@ -73,7 +73,7 @@ public final class ClassicStyle {
                 canvas.translate(child.getLeft()+child.getTranslationX(), child.getTop()+child.getTranslationY());
                 controlFrames(canvas, (ViewGroup)child); canvas.restoreToCount(save);
             }
-            if ((child instanceof EditText || child.isClickable()) && child.getWidth() >= unit()*28
+            if ((child instanceof EditText || (child.isClickable() && (!(child instanceof android.widget.TextView) || child.hasOnClickListeners()))) && child.getWidth() >= unit()*28
                     && child.getHeight() >= unit()*28 && child.getHeight() <= unit()*240) {
                 frame(canvas, new RectF(child.getLeft()+child.getTranslationX(), child.getTop()+child.getTranslationY(),
                         child.getRight()+child.getTranslationX(), child.getBottom()+child.getTranslationY()),

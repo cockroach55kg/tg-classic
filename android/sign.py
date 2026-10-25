@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Sign a builder APK locally with a stable key that never leaves this machine."""
 import argparse
+import copy
 import hashlib
 import json
 import os
@@ -54,10 +55,23 @@ assert password.is_file(), 'The stable signing password is missing. Do not gener
 args.output.parent.mkdir(parents=True, exist_ok=True)
 temporary = args.output.with_suffix('.signing.apk')
 assert not temporary.exists(), 'An incomplete signing output exists; inspect it first.'
+packed = args.output.with_suffix('.packed.apk')
+aligned = args.output.with_suffix('.unsigned.apk')
+assert not packed.exists() and not aligned.exists(), 'Inspect the previous packaging attempt.'
+# Incremental Gradle ZIPs can retain unused space. Repack file contents, then apply
+# Android's alignment before generating the final APK signature.
+with zipfile.ZipFile(args.input) as original, zipfile.ZipFile(packed, 'w') as archive:
+    for entry in original.infolist():
+        if entry.filename.startswith('META-INF/') and (entry.filename.endswith(('.RSA', '.DSA', '.EC', '.SF')) or entry.filename == 'META-INF/MANIFEST.MF'):
+            continue
+        info = copy.copy(entry)
+        info.extra = b''
+        archive.writestr(info, original.read(entry))
+subprocess.run([str(tools / 'zipalign'), '-P', '16', '4', str(packed), str(aligned)], env=env, check=True)
 subprocess.run([
     java, '-jar', str(signer), 'sign', '--ks', str(key), '--ks-key-alias', 'tgclassic',
     '--ks-pass', 'file:' + str(password),
-    '--out', str(temporary), str(args.input),
+    '--out', str(temporary), str(aligned),
 ], env=env, check=True)
 verification = subprocess.check_output([
     java, '-jar', str(signer), 'verify', '--verbose', '--print-certs', str(temporary),
@@ -73,7 +87,10 @@ with zipfile.ZipFile(temporary) as archive:
 digest = hashlib.sha256(temporary.read_bytes()).hexdigest()
 certificate = re.search(r'Signer #1 certificate SHA-256 digest: (\w+)', verification)
 assert certificate, 'The signing certificate was not reported.'
+subprocess.run([str(tools / 'zipalign'), '-c', '-P', '16', '4', str(temporary)], env=env, check=True)
 temporary.rename(args.output)
+packed.unlink()
+aligned.unlink()
 # APK Signature Scheme v4 creates a companion idsig on some tool versions.
 idsig = Path(str(temporary) + '.idsig')
 if idsig.exists():
@@ -82,7 +99,7 @@ info = {
     'apk': str(args.output.resolve()), 'sha256': digest, 'bytes': args.output.stat().st_size,
     'application_id': 'com.tgclassic.client.web', 'architecture': 'arm64-v8a',
     'min_sdk': 23, 'configuration': 'Debug', 'certificate_sha256': certificate.group(1),
-    'native_libraries': native, 'signature_verified': True,
+    'native_libraries': native, 'signature_verified': True, 'zip_alignment_verified': True,
 }
 (args.output.parent / 'signature-verification.txt').write_text(verification)
 (args.output.parent / 'package-badging.txt').write_text(badging)

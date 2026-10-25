@@ -381,6 +381,42 @@ index 99f8557..9d5b328 100644
                  AndroidUtilities.rectTmp.set(0, 0, size, size);
                  canvas.drawRoundRect(AndroidUtilities.rectTmp, roundRadius, roundRadius, backgroundPaint);
              } else {
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/BottomPagesView.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/BottomPagesView.java
+index 0315350..9b030fd 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/BottomPagesView.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/BottomPagesView.java
+@@ -56,7 +56,7 @@ public class BottomPagesView extends View {
+         if (colorKey >= 0) {
+             paint.setColor((Theme.getColor(colorKey) & 0x00ffffff) | 0xb4000000);
+         } else {
+-            paint.setColor(Theme.getCurrentTheme().isDark() ? 0xff555555 : 0xffbbbbbb);
++            paint.setColor(org.telegram.ui.Classic.ClassicStyle.enabled() ? (org.telegram.ui.Classic.ClassicStyle.dark() ? 0xff405565 : 0xff808080) : (Theme.getCurrentTheme().isDark() ? 0xff555555 : 0xffbbbbbb));
+         }
+         int x;
+         currentPage = viewPager.getCurrentItem();
+@@ -66,12 +66,12 @@ public class BottomPagesView extends View {
+             }
+             x = a * AndroidUtilities.dp(11);
+             rect.set(x, 0, x + AndroidUtilities.dp(5), AndroidUtilities.dp(5));
+-            canvas.drawRoundRect(rect, AndroidUtilities.dp(2.5f), AndroidUtilities.dp(2.5f), paint);
++            canvas.drawRoundRect(rect, org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : AndroidUtilities.dp(2.5f), org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : AndroidUtilities.dp(2.5f), paint);
+         }
+         if (selectedColorKey >= 0) {
+             paint.setColor(Theme.getColor(selectedColorKey));
+         } else {
+-            paint.setColor(ThemeColors.TELEGRAM_COLOR);
++            paint.setColor(org.telegram.ui.Classic.ClassicStyle.enabled() ? (org.telegram.ui.Classic.ClassicStyle.dark() ? 0xff90b8ff : org.telegram.ui.Classic.ClassicStyle.title()) : ThemeColors.TELEGRAM_COLOR);
+         }
+         x = currentPage * AndroidUtilities.dp(11);
+         if (progress != 0) {
+@@ -83,6 +83,6 @@ public class BottomPagesView extends View {
+         } else {
+             rect.set(x, 0, x + AndroidUtilities.dp(5), AndroidUtilities.dp(5));
+         }
+-        canvas.drawRoundRect(rect, AndroidUtilities.dp(2.5f), AndroidUtilities.dp(2.5f), paint);
++        canvas.drawRoundRect(rect, org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : AndroidUtilities.dp(2.5f), org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : AndroidUtilities.dp(2.5f), paint);
+     }
+ }
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java
 index 52b511d..ba3f55d 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java
@@ -462,10 +498,19 @@ index d9d6c04..c284ca1 100644
                  return;
              }
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java
-index b3cd7c5..5985da2 100644
+index b3cd7c5..ba7b0d5 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java
-@@ -157,7 +157,7 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+@@ -106,6 +106,8 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+     private TextView startMessagingButton;
+     private FrameLayout frameLayout2;
+     private FrameLayout frameContainerView;
++    private TextView classicTitle;
++    private FrameLayout classicThemeFrame;
+ 
+     private RLottieDrawable darkThemeDrawable;
+ 
+@@ -157,7 +159,7 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
          logoDrawable.setBounds(0, dp(8.666f), dp(115), dp(35));
          SpannableStringBuilder ssb = new SpannableStringBuilder(LocaleController.getString(R.string.Page1Title));
          ssb.setSpan(new ImageSpan(logoDrawable), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -474,7 +519,26 @@ index b3cd7c5..5985da2 100644
  
  
          actionBar.setAddToContainer(false);
-@@ -292,6 +292,14 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+@@ -167,6 +169,7 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+ 
+         RLottieImageView themeIconView = new RLottieImageView(context);
+         FrameLayout themeFrameLayout = new FrameLayout(context);
++        classicThemeFrame = themeFrameLayout;
+         themeFrameLayout.addView(themeIconView, LayoutHelper.createFrame(28, 28, Gravity.CENTER));
+ 
+         int themeMargin = 4;
+@@ -175,6 +178,10 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+             @Override
+             protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+                 super.onLayout(changed, left, top, right, bottom);
++                if (classicTitle != null) {
++                    int captionTop = AndroidUtilities.statusBarHeight + dp(4);
++                    classicTitle.layout(dp(4), captionTop, getWidth() - dp(4), captionTop + dp(36));
++                }
+ 
+                 int oneFourth = (bottom - top) / 4;
+ 
+@@ -292,6 +299,14 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
              }
          });
  
@@ -489,7 +553,7 @@ index b3cd7c5..5985da2 100644
          viewPager = new ViewPager(context);
          viewPager.setAdapter(new IntroAdapter());
          viewPager.setPageMargin(0);
-@@ -349,13 +357,18 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+@@ -349,13 +364,18 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
  
              @Override
              public void draw(@NonNull Canvas canvas) {
@@ -509,7 +573,7 @@ index b3cd7c5..5985da2 100644
                  AndroidUtilities.rectTmp.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
                  cellFlickerDrawable.draw(canvas, AndroidUtilities.rectTmp, getMeasuredHeight() / 2f, null);
                  invalidate();
-@@ -371,7 +384,7 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+@@ -371,7 +391,7 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
                  }
              }
          };
@@ -518,13 +582,13 @@ index b3cd7c5..5985da2 100644
          startMessagingButton.setText(LocaleController.getString(R.string.StartMessaging));
          startMessagingButton.setGravity(Gravity.CENTER);
          startMessagingButton.setTypeface(AndroidUtilities.bold());
-@@ -422,7 +435,19 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+@@ -422,7 +442,19 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
              LocaleController.getInstance().applyLanguage(localeInfo, true, false, currentAccount);
          });
  
 -        frameContainerView.addView(themeFrameLayout, LayoutHelper.createFrame(64, 64, Gravity.TOP | Gravity.RIGHT, 0, themeMargin, themeMargin, 0));
 +        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
-+            TextView title = new TextView(context);
++            TextView title = classicTitle = new TextView(context);
 +            title.setText("TG Classic");
 +            title.setTextColor(Color.WHITE);
 +            title.setTypeface(AndroidUtilities.bold());
@@ -539,7 +603,7 @@ index b3cd7c5..5985da2 100644
  
          fragmentView = scrollView;
  
-@@ -965,9 +990,9 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+@@ -965,9 +997,21 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
          logoDrawable.setColorFilter(Theme.multAlpha(getThemedColor(Theme.key_actionBarDefaultTitle), 0.9f), PorterDuff.Mode.MULTIPLY);
          fragmentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
          switchLanguageTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText4));
@@ -548,10 +612,22 @@ index b3cd7c5..5985da2 100644
          startMessagingButton.setBackground(Theme.createSimpleSelectorRoundRectDrawable(dp(24), Color.TRANSPARENT, Theme.getColor(Theme.key_featuredStickers_addButtonPressed)));
 -        darkThemeDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_featuredStickers_addButton), PorterDuff.Mode.SRC_IN));
 +        darkThemeDrawable.setColorFilter(new PorterDuffColorFilter(org.telegram.ui.Classic.ClassicStyle.enabled() ? org.telegram.ui.Classic.ClassicStyle.text() : Theme.getColor(Theme.key_featuredStickers_addButton), PorterDuff.Mode.SRC_IN));
++        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++            if (classicTitle != null) classicTitle.setBackground(org.telegram.ui.Classic.ClassicStyle.shape(org.telegram.ui.Classic.ClassicStyle.title(), false));
++            if (classicThemeFrame != null) classicThemeFrame.setBackground(Theme.createSimpleSelectorRoundRectDrawable(0, org.telegram.ui.Classic.ClassicStyle.surface(), org.telegram.ui.Classic.ClassicStyle.surface()));
++            Activity activity = getParentActivity();
++            if (activity != null) {
++                activity.getWindow().setStatusBarColor(org.telegram.ui.Classic.ClassicStyle.surface());
++                activity.getWindow().setNavigationBarColor(org.telegram.ui.Classic.ClassicStyle.surface());
++                if (android.os.Build.VERSION.SDK_INT >= 29) activity.getWindow().setNavigationBarContrastEnforced(false);
++                AndroidUtilities.setLightStatusBar(activity, !org.telegram.ui.Classic.ClassicStyle.dark());
++                AndroidUtilities.setLightNavigationBar(activity, !org.telegram.ui.Classic.ClassicStyle.dark());
++            }
++        }
          bottomPages.invalidate();
          if (fromTheme) {
              if (eglThread != null) {
-@@ -994,6 +1019,6 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
+@@ -994,6 +1038,6 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
      @Override
      public boolean isLightStatusBar() {
          int color = Theme.getColor(Theme.key_windowBackgroundWhite, null, true);
