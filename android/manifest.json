@@ -9,11 +9,11 @@
   "min_sdk": 23,
   "compile_sdk": 36,
   "ndk": "27.2.12479018",
-  "status": "Signed arm64 Debug preview built; Android 15 empty-profile startup and onboarding day/night visuals verified",
+  "status": "Signed compact arm64 Debug preview built; Android 15 startup and onboarding day/night verified",
   "icon_source": "../assets/TG Classic.png",
   "icon_sha256": "6935eeffb8705c147d87cd55c10a46bb5cd8330ccd3d88c71197dadfe1427644",
   "patch_sha256": {
-    "ui.patch": "a622a4d7e16e7ec78300875279ea6561b70927cc640b5f0f391ed9f1510eb672"
+    "ui.patch": "59c9aa8eb7357ebff957438c07b86ae4719c6edd153bef3bdc62945712bcb53a"
   },
   "overlay_sha256": {
     "overlay/org/telegram/ui/Classic/ClassicStyle.java": "edbc0e58898ec80c4a06f0a261491c178bfdb99d64e34f86ac37b87bd04dbb26",
@@ -30,7 +30,7 @@
     "resources/TMessagesProj_AppStandalone/src/main/res/mipmap-anydpi-v26/ic_launcher_sa.xml": "493ad18b619bb295e4538b4e7a77658866909d8797c8aa12684e44367a9fdb94",
     "resources/TMessagesProj/src/main/res/values-ru/classic.xml": "d76c8804f6c8564e562ffb49d4c6db2ef88a899ed110c1aa26986ac987807664"
   },
-  "build_revision": "android-r1",
+  "build_revision": "android-r1-compact",
   "verification": {
     "android_release": "15",
     "api_level": 35,
@@ -41,5 +41,17 @@
     "push_delivery_tested": false,
     "native_elf_alignment_bytes": 16384,
     "test_api": true
+  },
+  "recommended_artifact": "artifacts/android-compact/TG-Classic-Android-arm64.apk",
+  "size_optimization": {
+    "optimizer": "R8",
+    "gradle_property": "tgclassicCompact=true",
+    "resources_shrunk": false,
+    "baseline_apk_bytes": 61380074,
+    "compact_apk_bytes": 53535765,
+    "saved_percent": 12.78,
+    "compact_apk_sha256": "093e1762a7cfaf076c686dae8338d358d4505d9e939d50c4364c43a2e4e10f64",
+    "preserved_resource_and_native_files": 7672,
+    "preserved_files_byte_identical": true
   }
 }

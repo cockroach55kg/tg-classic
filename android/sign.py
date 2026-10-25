@@ -66,7 +66,7 @@ with zipfile.ZipFile(args.input) as original, zipfile.ZipFile(packed, 'w') as ar
             continue
         info = copy.copy(entry)
         info.extra = b''
-        archive.writestr(info, original.read(entry))
+        archive.writestr(info, original.read(entry), compress_type=info.compress_type, compresslevel=9)
 subprocess.run([str(tools / 'zipalign'), '-P', '16', '4', str(packed), str(aligned)], env=env, check=True)
 subprocess.run([
     java, '-jar', str(signer), 'sign', '--ks', str(key), '--ks-key-alias', 'tgclassic',

@@ -6,6 +6,10 @@ on:
         description: Use upstream development API credentials for a private preview
         type: boolean
         default: true
+      compact:
+        description: Minify code with R8 while preserving all resources
+        type: boolean
+        default: true
 permissions:
   contents: read
 concurrency:
@@ -37,7 +41,7 @@ jobs:
           key: tg-classic-android-${{ runner.os }}-${{ hashFiles('android/manifest.json') }}
           restore-keys: tg-classic-android-${{ runner.os }}-
       - name: Build arm64 APK with temporary builder signature
-        run: python3 android/build.py --sdk "$ANDROID_HOME"
+        run: python3 android/build.py --sdk "$ANDROID_HOME" ${{ inputs.compact && '--compact' || '' }}
       - uses: actions/cache/save@v4
         if: always() && steps.gradle.outputs.cache-hit != 'true'
         with:
@@ -47,6 +51,8 @@ jobs:
         if: success()
         with:
           name: TG-Classic-Android-arm64-builder
-          path: artifacts/android/*
+          path: |
+            artifacts/android/*
+            artifacts/android-compact/*
           retention-days: 30
           if-no-files-found: error

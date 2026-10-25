@@ -3,7 +3,7 @@
 import argparse,json,os,subprocess,shutil,hashlib,zipfile,re
 from pathlib import Path
 root=Path(__file__).resolve().parent
-p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=root/'upstream');p.add_argument('--sdk',type=Path);p.add_argument('--check',action='store_true');args=p.parse_args();source=args.source.resolve()
+p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=root/'upstream');p.add_argument('--sdk',type=Path);p.add_argument('--check',action='store_true');p.add_argument('--compact',action='store_true',help='Shrink and minify code using upstream R8 keep rules; preserve all resources.');args=p.parse_args();source=args.source.resolve()
 sdk=args.sdk or (Path(os.environ['ANDROID_HOME']) if os.environ.get('ANDROID_HOME') else root/'local/sdk');sdk=sdk.resolve()
 env=dict(os.environ)
 api_file=root.parent/'.private/telegram-api.json'
@@ -30,11 +30,12 @@ subprocess.run(['git','submodule','update','--init','--recursive','--depth','1']
 key=Path(env['TGCLASSIC_DEBUG_KEYSTORE']);key.parent.mkdir(parents=True,exist_ok=True)
 if not key.exists():
  subprocess.run(['keytool','-genkeypair','-keystore',str(key),'-storepass','android','-keypass','android','-alias','androiddebugkey','-dname','CN=Android Debug,O=Android,C=US','-keyalg','RSA','-validity','10000'],env=env,check=True,stdout=subprocess.DEVNULL)
-subprocess.run(['bash','gradlew',':TMessagesProj:compileDebugJavaWithJavac',':TMessagesProj_AppStandalone:assembleAfatDebug','--no-daemon','--max-workers=2','-Pkotlin.compiler.execution.strategy=in-process','-Dorg.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g'],cwd=source,env=env,check=True)
+subprocess.run(['bash','gradlew',':TMessagesProj:compileDebugJavaWithJavac',':TMessagesProj_AppStandalone:assembleAfatDebug','-PtgclassicCompact='+str(args.compact).lower(),'--no-daemon','--max-workers=2','-Pkotlin.compiler.execution.strategy=in-process','-Dorg.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g'],cwd=source,env=env,check=True)
 outputs=list((source/'TMessagesProj_AppStandalone/build/outputs/apk').rglob('*.apk'));assert len(outputs)==1,outputs
-out=root.parent/'artifacts/android';out.mkdir(parents=True,exist_ok=True);target=out/'TG-Classic-Android-arm64-builder.apk';shutil.copy2(outputs[0],target)
+out=root.parent/('artifacts/android-compact' if args.compact else 'artifacts/android');out.mkdir(parents=True,exist_ok=True);target=out/'TG-Classic-Android-arm64-builder.apk';shutil.copy2(outputs[0],target)
+if args.compact:shutil.copy2(source/'TMessagesProj_AppStandalone/build/outputs/mapping/afatDebug/mapping.txt',out/'mapping.txt')
 with zipfile.ZipFile(target) as z:
  assert z.testzip() is None
  assert 'lib/arm64-v8a/libtmessages.49.so' in z.namelist(),'Missing native Telegram library.'
-result={'application':str(target),'architecture':'arm64-v8a','application_id':'com.tgclassic.client.web','configuration':'Debug','test_api':env.get('TGCLASSIC_TEST_API')=='true','local_signing_pending':True,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'source_manifest_sha256':hashlib.sha256((root/'manifest.json').read_bytes()).hexdigest()}
+result={'application':str(target),'architecture':'arm64-v8a','application_id':'com.tgclassic.client.web','configuration':'Debug','test_api':env.get('TGCLASSIC_TEST_API')=='true','local_signing_pending':True,'code_minified':args.compact,'resources_shrunk':False,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'source_manifest_sha256':hashlib.sha256((root/'manifest.json').read_bytes()).hexdigest()}
 (out/'builder-info.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

@@ -817,7 +817,7 @@ index 7d8212d..7107ff1 100644
 +    <string name="TGClassicToggleWallpaper">Show / hide chat wallpaper</string>
  </resources>
 diff --git a/TMessagesProj_AppStandalone/build.gradle b/TMessagesProj_AppStandalone/build.gradle
-index 8c7a853..6c33a30 100644
+index 8c7a853..0c4756b 100644
 --- a/TMessagesProj_AppStandalone/build.gradle
 +++ b/TMessagesProj_AppStandalone/build.gradle
 @@ -49,21 +49,19 @@ android {
@@ -852,7 +852,18 @@ index 8c7a853..6c33a30 100644
      packagingOptions {
          jniLibs {
              useLegacyPackaging = true
-@@ -107,7 +105,7 @@ android {
+@@ -76,7 +74,9 @@ android {
+             jniDebuggable true
+             signingConfig signingConfigs.debug
+             applicationIdSuffix ".web"
+-            minifyEnabled false
++            minifyEnabled project.findProperty('tgclassicCompact') == 'true'
++            // Keep all resources: Telegram resolves some names dynamically.
++            shrinkResources false
+             multiDexEnabled true
+             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../TMessagesProj/proguard-rules.pro'
+             ndk.debugSymbolLevel = 'FULL'
+@@ -107,7 +107,7 @@ android {
      productFlavors {
          afat {
              ndk {
@@ -861,7 +872,7 @@ index 8c7a853..6c33a30 100644
              }
              ext {
                  abiVersionCode = 9
-@@ -163,4 +161,4 @@ android {
+@@ -163,4 +163,4 @@ android {
      }
  }
  
