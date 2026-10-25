@@ -13,6 +13,36 @@ try {
     $result.window_created = $process.MainWindowHandle -ne 0
     if (-not $result.window_created) { throw 'The process stayed alive but did not create a main window.' }
     $result.sha256 = (Get-FileHash $binary -Algorithm SHA256).Hash.ToLower()
+    Add-Type -AssemblyName System.Drawing
+    Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+public static class TGClassicWindowCapture {
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RECT { public int Left, Top, Right, Bottom; }
+    [DllImport("user32.dll")]
+    public static extern bool GetWindowRect(IntPtr window, out RECT rectangle);
+    [DllImport("user32.dll")]
+    public static extern bool PrintWindow(IntPtr window, IntPtr dc, uint flags);
+}
+'@
+    $rectangle = New-Object TGClassicWindowCapture+RECT
+    if (-not [TGClassicWindowCapture]::GetWindowRect($process.MainWindowHandle, [ref]$rectangle)) { throw 'Could not read the test window bounds.' }
+    $width = $rectangle.Right - $rectangle.Left
+    $height = $rectangle.Bottom - $rectangle.Top
+    if ($width -le 0 -or $height -le 0) { throw 'The test window has no visible area.' }
+    $bitmap = New-Object System.Drawing.Bitmap($width, $height)
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    $dc = $graphics.GetHdc()
+    try {
+        if (-not [TGClassicWindowCapture]::PrintWindow($process.MainWindowHandle, $dc, 2)) { throw 'Could not capture the test window.' }
+    } finally { $graphics.ReleaseHdc($dc); $graphics.Dispose() }
+    try {
+        $bitmap.Save((Join-Path (Split-Path $binary -Parent) 'startup-verification.png'), [System.Drawing.Imaging.ImageFormat]::Png)
+    } finally { $bitmap.Dispose() }
+    $result.screenshot = 'startup-verification.png'
+    $result.window_width = $width
+    $result.window_height = $height
 } finally {
     # This process was created above in an empty CI profile, not an installed client.
     if (-not $process.HasExited) {

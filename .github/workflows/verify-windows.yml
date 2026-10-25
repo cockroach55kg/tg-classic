@@ -33,10 +33,16 @@ jobs:
           $probe = Join-Path $env:RUNNER_TEMP 'TGClassicPackageProbe'
           Expand-Archive $archive $probe
           ./windows/verify.ps1 -Executable "$probe/TG Classic/TG Classic.exe"
-          Copy-Item "$probe/TG Classic/startup-verification.json" package
+          Copy-Item "$probe/TG Classic/startup-verification.*" package
       - uses: actions/upload-artifact@v4
         with:
           name: TG-Classic-Windows-x64-verified
           path: package/*
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TG-Classic-Windows-startup-evidence
+          path: package/startup-verification.*
           if-no-files-found: error
           retention-days: 30
