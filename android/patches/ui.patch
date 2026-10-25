@@ -140,6 +140,18 @@ index 0a60742..f8d52d3 100644
          if (drawable instanceof BitmapDrawable) {
              BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
              if (drawable instanceof RLottieDrawable) {
+diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/LocaleController.java b/TMessagesProj/src/main/java/org/telegram/messenger/LocaleController.java
+index 245a5ab..917f495 100644
+--- a/TMessagesProj/src/main/java/org/telegram/messenger/LocaleController.java
++++ b/TMessagesProj/src/main/java/org/telegram/messenger/LocaleController.java
+@@ -1444,6 +1444,7 @@ public class LocaleController {
+     }
+ 
+     private String getStringInternal(String key, String fallback, int res) {
++        if (res == R.string.AppName || res == R.string.AppNameBeta || "AppName".equals(key) || "AppNameBeta".equals(key)) return "TG Classic";
+         final String value = getStringV2(key, res, fallback);
+         if (value == null) {
+             return "LOC_ERR:" + key;
 diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/PushListenerController.java b/TMessagesProj/src/main/java/org/telegram/messenger/PushListenerController.java
 index d63cdf5..b65e51a 100644
 --- a/TMessagesProj/src/main/java/org/telegram/messenger/PushListenerController.java

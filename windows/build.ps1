@@ -21,6 +21,7 @@ Push-Location $sourcePath
 try {
     Invoke-Checked { git config user.name 'TG Classic Build' }
     Invoke-Checked { git config user.email 'tg-classic-build@users.noreply.github.com' }
+    Invoke-Checked { python (Join-Path $PSScriptRoot 'brand.py') $sourcePath }
     Invoke-Checked { cmd /d /c 'Telegram\build\prepare\win.bat skip-release silent qt6' }
     Push-Location (Join-Path $sourcePath 'Telegram')
     try {
