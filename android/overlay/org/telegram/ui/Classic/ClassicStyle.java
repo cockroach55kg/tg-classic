@@ -81,6 +81,35 @@ public final class ClassicStyle {
             }
         }
     }
+    public static void frameControl(Canvas canvas, ViewGroup root, View child) {
+        if (child == null || child.getVisibility() != View.VISIBLE || child.getAlpha() == 0) return;
+        Rect bounds = new Rect(0, 0, child.getWidth(), child.getHeight());
+        root.offsetDescendantRectToMyCoords(child, bounds);
+        frame(canvas, new RectF(bounds), child.isPressed(), Math.round(255 * child.getAlpha()));
+    }
+    public static void storyArc(Canvas canvas, RectF bounds, float angle, float sweep, Paint paint) {
+        if (!enabled()) { canvas.drawArc(bounds, angle, sweep, false, paint); return; }
+        if (bounds.isEmpty() || sweep == 0) return;
+        Paint.Cap cap = paint.getStrokeCap();
+        paint.setStrokeCap(Paint.Cap.SQUARE);
+        if (Math.abs(sweep) >= 359.9f) {
+            canvas.drawRect(bounds, paint);
+        } else {
+            if (sweep < 0) { angle += sweep; sweep = -sweep; }
+            android.graphics.Path outline = new android.graphics.Path();
+            outline.addRect(bounds, android.graphics.Path.Direction.CW);
+            android.graphics.PathMeasure measure = new android.graphics.PathMeasure(outline, true);
+            float perimeter = measure.getLength();
+            float start = ((angle % 360 + 360) % 360) / 360f * perimeter + bounds.width() + bounds.height() / 2;
+            start %= perimeter;
+            float distance = sweep / 360f * perimeter;
+            android.graphics.Path segment = new android.graphics.Path();
+            measure.getSegment(start, Math.min(perimeter, start + distance), segment, true);
+            if (start + distance > perimeter) measure.getSegment(0, start + distance - perimeter, segment, true);
+            canvas.drawPath(segment, paint);
+        }
+        paint.setStrokeCap(cap);
+    }
     public static boolean wallpaperVisible() {
         Context context=ApplicationLoader.applicationContext;
         return context != null && context.getSharedPreferences("tg_classic",Context.MODE_PRIVATE)

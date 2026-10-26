@@ -79,8 +79,13 @@ verification = subprocess.check_output([
 badging = subprocess.check_output([str(tools / 'aapt'), 'dump', 'badging', str(temporary)], env=env, text=True)
 assert "package: name='com.tgclassic.client.web'" in badging, 'Unexpected application identifier.'
 assert "sdkVersion:'23'" in badging, 'Unexpected Android minimum version.'
+manifest = subprocess.check_output([str(tools / 'aapt'), 'dump', 'xmltree', str(temporary), 'AndroidManifest.xml'], env=env, text=True)
+assert 'classicqa' not in manifest, 'QA activity must never be shipped in the client.'
 with zipfile.ZipFile(temporary) as archive:
     assert archive.testzip() is None, 'APK archive corruption.'
+    for name in archive.namelist():
+        if re.fullmatch(r'classes\d*\.dex', name):
+            assert b'TG_CLASSIC_QA_FIXTURE_ONLY' not in archive.read(name), 'Offline QA fixtures leaked into the client.'
     native = [name for name in archive.namelist() if name.startswith('lib/') and name.endswith('.so')]
     assert 'lib/arm64-v8a/libtmessages.49.so' in native, 'The Telegram native library is missing.'
     assert all(name.startswith('lib/arm64-v8a/') for name in native), native
