@@ -197,7 +197,7 @@ index d63cdf5..b65e51a 100644
                  try {
                      int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ApplicationLoader.applicationContext);
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java
-index f8960d3..08b4c2a 100644
+index f8960d3..3a9ae24 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java
 @@ -214,6 +214,11 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
@@ -206,7 +206,7 @@ index f8960d3..08b4c2a 100644
                             boolean isForum) {
 +        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
 +            glassMode = false;
-+            setBackground(org.telegram.ui.Classic.ClassicStyle.shape(org.telegram.ui.Classic.ClassicStyle.title(), false));
++            setBackgroundColor(org.telegram.ui.Classic.ClassicStyle.title());
 +            return;
 +        }
          setBackground(null);
@@ -228,20 +228,19 @@ index f8960d3..08b4c2a 100644
          if (subtitleTextView == null) {
              createSubtitleTextView();
          }
-@@ -737,6 +744,12 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
+@@ -737,6 +744,11 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
  
              @Override
              protected void dispatchDraw(Canvas canvas) {
 +        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
-+            org.telegram.ui.Classic.ClassicStyle.panel(canvas, new android.graphics.Rect(0, 0, getWidth(), getHeight()), org.telegram.ui.Classic.ClassicStyle.title(), false);
++            org.telegram.ui.Classic.ClassicStyle.fill(canvas, new android.graphics.Rect(0, 0, getWidth(), getHeight()), org.telegram.ui.Classic.ClassicStyle.title());
 +            super.dispatchDraw(canvas);
-+            org.telegram.ui.Classic.ClassicStyle.frame(canvas, new android.graphics.RectF(0, 0, getWidth(), getHeight()), false, 255);
 +            return;
 +        }
                  if (blurredBackground && drawBlur && actionModeColor != 0) {
                      rectTmp.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
                      blurScrimPaint.setColor(actionModeColor);
-@@ -1798,6 +1811,7 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
+@@ -1798,6 +1810,7 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
      }
  
      public void setItemsColor(int color, boolean isActionMode) {
@@ -249,19 +248,107 @@ index f8960d3..08b4c2a 100644
          if (isActionMode) {
              itemsActionModeColor = color;
              if (actionMode != null) {
-@@ -2228,6 +2242,12 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
+@@ -2228,6 +2241,11 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
  
      @Override
      protected void dispatchDraw(Canvas canvas) {
 +        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
-+            org.telegram.ui.Classic.ClassicStyle.panel(canvas, new android.graphics.Rect(0, 0, getWidth(), getHeight()), org.telegram.ui.Classic.ClassicStyle.title(), false);
++            org.telegram.ui.Classic.ClassicStyle.fill(canvas, new android.graphics.Rect(0, 0, getWidth(), getHeight()), org.telegram.ui.Classic.ClassicStyle.title());
 +            super.dispatchDraw(canvas);
-+            org.telegram.ui.Classic.ClassicStyle.frame(canvas, new android.graphics.RectF(0, 0, getWidth(), getHeight()), false, 255);
 +            return;
 +        }
          final int p = dp(6);
          final int s = dp(46);
  
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java
+index 3d452aa..95d357a 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java
+@@ -6,6 +6,7 @@ import android.animation.Animator;
+ import android.animation.AnimatorListenerAdapter;
+ import android.animation.ValueAnimator;
+ import android.content.Context;
++import android.graphics.Color;
+ import android.graphics.PorterDuff;
+ import android.graphics.PorterDuffColorFilter;
+ import android.graphics.drawable.Drawable;
+@@ -255,6 +256,7 @@ public class ActionBarMenuSubItem extends FrameLayout {
+     }
+ 
+     public void setTextColor(int textColor) {
++        if (org.telegram.ui.Classic.ClassicStyle.enabled() && (textColor == Color.WHITE || textColor == Color.BLACK)) textColor = org.telegram.ui.Classic.ClassicStyle.text();
+         if (this.textColor != textColor) {
+             textView.setTextColor(this.textColor = textColor);
+         }
+@@ -265,6 +267,7 @@ public class ActionBarMenuSubItem extends FrameLayout {
+     }
+ 
+     public void setIconColor(int iconColor, PorterDuff.Mode mode) {
++        if (org.telegram.ui.Classic.ClassicStyle.enabled() && (iconColor == Color.WHITE || iconColor == Color.BLACK)) iconColor = org.telegram.ui.Classic.ClassicStyle.text();
+         if (this.iconColor != iconColor || this.iconColorMode != mode) {
+             imageView.setColorFilter(new PorterDuffColorFilter(this.iconColor = iconColor, this.iconColorMode = mode));
+         }
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java
+index 6a9dc81..d3c12a5 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java
+@@ -65,7 +65,7 @@ public class ActionBarPopupWindow extends PopupWindow {
+     private static final Field superListenerField;
+     private static DecelerateInterpolator decelerateInterpolator = new DecelerateInterpolator();
+     private AnimatorSet windowAnimatorSet;
+-    private boolean animationEnabled = true;
++    private boolean animationEnabled = !org.telegram.ui.Classic.ClassicStyle.enabled();
+     private int dismissAnimationDuration = 150;
+     private boolean isClosingAnimated;
+     private int currentAccount = UserConfig.selectedAccount;
+@@ -116,7 +116,7 @@ public class ActionBarPopupWindow extends PopupWindow {
+         private int backAlpha = 255;
+         private int lastStartedChild = 0;
+         public boolean shownFromBottom;
+-        private boolean animationEnabled = true;
++        private boolean animationEnabled = !org.telegram.ui.Classic.ClassicStyle.enabled();
+         private ArrayList<AnimatorSet> itemAnimators;
+         private HashMap<View, Integer> positions = new HashMap<>();
+         private int gapStartY = -1000000;
+@@ -404,7 +404,7 @@ public class ActionBarPopupWindow extends PopupWindow {
+         }
+ 
+         public void setAnimationEnabled(boolean value) {
+-            animationEnabled = value;
++            animationEnabled = value && !org.telegram.ui.Classic.ClassicStyle.enabled();
+         }
+ 
+         @Override
+@@ -450,6 +450,13 @@ public class ActionBarPopupWindow extends PopupWindow {
+ 
+         @Override
+         protected void dispatchDraw(Canvas canvas) {
++            if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++                if (backgroundDrawable != null) backgroundDrawable.setBounds(0, 0, getWidth(), getHeight());
++                org.telegram.ui.Classic.ClassicStyle.fill(canvas, new Rect(0,0,getWidth(),getHeight()), org.telegram.ui.Classic.ClassicStyle.surface());
++                super.dispatchDraw(canvas);
++                org.telegram.ui.Classic.ClassicStyle.frame(canvas, new android.graphics.RectF(0,0,getWidth(),getHeight()), false,255);
++                return;
++            }
+             if (swipeBackGravityRight) {
+                 setTranslationX(getMeasuredWidth() * (1f - backScaleX));
+                 if (topView != null) {
+@@ -711,7 +718,7 @@ public class ActionBarPopupWindow extends PopupWindow {
+     }
+ 
+     public void setAnimationEnabled(boolean value) {
+-        animationEnabled = value;
++        animationEnabled = value && !org.telegram.ui.Classic.ClassicStyle.enabled();
+     }
+ 
+     @SuppressWarnings("PrivateAPI")
+@@ -1138,4 +1145,4 @@ public class ActionBarPopupWindow extends PopupWindow {
+             }
+         }
+     }
+-}
+\ No newline at end of file
++}
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java
 index 369642d..20baa19 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java
@@ -302,24 +389,58 @@ index 369642d..20baa19 100644
                  drawBackground = false;
              }
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/MessageDrawable.java b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/MessageDrawable.java
-index 9242105..bdbc5e5 100644
+index 9242105..d998268 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/MessageDrawable.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/MessageDrawable.java
-@@ -559,6 +559,14 @@ public class MessageDrawable extends Drawable {
+@@ -446,6 +446,7 @@ public class MessageDrawable extends Drawable {
+     }
  
+     public Drawable getShadowDrawable() {
++        if (org.telegram.ui.Classic.ClassicStyle.enabled()) return null;
+         if (isCrossfadeBackground) {
+             return null;
+         }
+@@ -557,8 +558,29 @@ public class MessageDrawable extends Drawable {
+         }
+     }
+ 
++    private Rect classicBounds(Rect source) {
++        Rect result = new Rect(source);
++        // Native text bounds reserve six dp for a tail; media/connected bounds do not.
++        if (currentType == TYPE_TEXT) {
++            if (isOut) result.right -= dp(6); else result.left += dp(6);
++        }
++        result.top += dp(1);
++        result.bottom -= dp(1);
++        return result;
++    }
++
      public void draw(Canvas canvas, Paint paintToUse) {
          Rect bounds = getBounds();
-+        if (org.telegram.ui.Classic.ClassicStyle.enabled() && paintToUse == null) {
++        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++            Rect classic = classicBounds(bounds);
++            if (paintToUse != null) { canvas.drawRect(classic, paintToUse); return; }
 +            int key = isOut ? (isSelected ? Theme.key_chat_outBubbleSelected : Theme.key_chat_outBubble)
 +                    : (isSelected ? Theme.key_chat_inBubbleSelected : Theme.key_chat_inBubble);
 +            int color = Theme.getColor(key);
 +            color = (color & 0x00ffffff) | (paint.getAlpha() << 24);
-+            org.telegram.ui.Classic.ClassicStyle.panel(canvas, bounds, color, false);
++            org.telegram.ui.Classic.ClassicStyle.panel(canvas, classic, color, false);
 +            return;
 +        }
          if (paintToUse == null && paint.getStyle() == Paint.Style.FILL && gradientShader == null && overrideRoundRadius == 0 && overrideRounding <= 0) {
              Drawable background = getBackgroundDrawable();
              if (background != null) {
+@@ -674,6 +696,10 @@ public class MessageDrawable extends Drawable {
+ 
+     private void generatePath(Path path, Rect bounds, int padding, int rad, int smallRad, int nearRad, int top, boolean drawFullBottom, boolean drawFullTop, boolean customPaint) {
+         path.rewind();
++        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++            path.addRect(new RectF(classicBounds(bounds)), Path.Direction.CW);
++            return;
++        }
+         int heightHalf = (bounds.height() - padding) >> 1;
+         if (rad > heightHalf) {
+             rad = heightHalf;
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java
 index b56ee0d..b15932a 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java
@@ -431,7 +552,7 @@ index 1392f2c..ea8f933 100644
              }
              if (dimAmount > 0) {
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java
-index 9dff553..aac9e0c 100644
+index 9dff553..2d8b12d 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java
 @@ -3737,6 +3737,11 @@ public class ChatActivity extends BaseFragment implements
@@ -464,6 +585,26 @@ index 9dff553..aac9e0c 100644
              otherIcon.addView(headerItem.getIconView());
              headerItem.setContentDescription(LocaleController.getString(R.string.AccDescrMoreOptions));
  
+@@ -8122,7 +8131,7 @@ public class ChatActivity extends BaseFragment implements
+         chatActivityEnterView.setViewParentForEmoji(chatInputInAppContainer);
+         checkSendButtonBlockedByTyping(false);
+ 
+-        chatInputBubbleContainer.addView(chatActivityEnterView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 7, 0, 7, 0));
++        chatInputBubbleContainer.addView(chatActivityEnterView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : 7, 0, org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : 7, 0));
+ 
+         int chatListIndex = contentView.indexOfChild(chatListView);
+         chatListIndex = chatListIndex < 0 ? contentView.getChildCount() : (chatListIndex + 1);
+@@ -17347,6 +17356,10 @@ public class ChatActivity extends BaseFragment implements
+ 
+             shouldHaveLightStatusBarIcons = statusBarBrightness <= 0.721f;
+             shouldHaveLightNavigationBarIcons = navigationBarBrightness <= 0.9f;
++            if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++                shouldHaveLightStatusBarIcons = true;
++                shouldHaveLightNavigationBarIcons = org.telegram.ui.Classic.ClassicStyle.dark();
++            }
+ 
+             navbarContentSourceWallpaper.setSource(source);
+             if (chatActivityFadeView != null) {
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ChatBackgroundDrawable.java b/TMessagesProj/src/main/java/org/telegram/ui/ChatBackgroundDrawable.java
 index 63b8d7e..a0f8442 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ChatBackgroundDrawable.java
@@ -551,9 +692,38 @@ index 0315350..9b030fd 100644
      }
  }
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java
-index 52b511d..eac1072 100644
+index 52b511d..2c632a3 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java
+@@ -2655,8 +2655,8 @@ public class ChatActivityEnterView extends FrameLayout implements
+         };
+         textFieldContainer.setClipChildren(false);
+         textFieldContainer.setClipToPadding(false);
+-        textFieldContainer.setPadding(0, dp(1), 0, 0);
+-        addView(textFieldContainer, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 0, 1, 0, 0));
++        textFieldContainer.setPadding(0, org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : dp(1), 0, 0);
++        addView(textFieldContainer, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 0, org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : 1, 0, 0));
+ 
+         FrameLayout frameLayout = messageEditTextContainer = new FrameLayout(context) {
+             @Override
+@@ -2752,7 +2752,7 @@ public class ChatActivityEnterView extends FrameLayout implements
+                 }
+             }
+         });
+-        messageEditTextContainer.addView(emojiButton, LayoutHelper.createFrame(DEFAULT_HEIGHT, DEFAULT_HEIGHT, Gravity.BOTTOM | Gravity.LEFT, 2, 0, 0, 0));
++        messageEditTextContainer.addView(emojiButton, LayoutHelper.createFrame(DEFAULT_HEIGHT, DEFAULT_HEIGHT, Gravity.BOTTOM | Gravity.LEFT, org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : 2, 0, 0, 0));
+         setEmojiButtonImage(false, false);
+ 
+         deleteRichDraftButton = new ImageView(context);
+@@ -2776,7 +2776,7 @@ public class ChatActivityEnterView extends FrameLayout implements
+                 .makeRed(AlertDialog.BUTTON_POSITIVE)
+                 .show();
+         });
+-        messageEditTextContainer.addView(deleteRichDraftButton, LayoutHelper.createFrame(DEFAULT_HEIGHT, DEFAULT_HEIGHT, Gravity.BOTTOM | Gravity.LEFT, 2, 0, 0, 0));
++        messageEditTextContainer.addView(deleteRichDraftButton, LayoutHelper.createFrame(DEFAULT_HEIGHT, DEFAULT_HEIGHT, Gravity.BOTTOM | Gravity.LEFT, org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : 2, 0, 0, 0));
+ 
+         if (isChat) {
+             final int chatMode = fragment != null ? fragment.getChatMode() : -1;
 @@ -3243,9 +3243,13 @@ public class ChatActivityEnterView extends FrameLayout implements
                              getMeasuredHeight() - margin
                      );
@@ -574,26 +744,37 @@ index 52b511d..eac1072 100644
  
      public void drawBackground(Canvas canvas, boolean withComposeShadowDrawable) {
 +        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
-+            if (shouldDrawBackground) org.telegram.ui.Classic.ClassicStyle.panel(canvas, new android.graphics.Rect(0,0,getWidth(),getHeight()), org.telegram.ui.Classic.ClassicStyle.surface(), false);
++            if (shouldDrawBackground) org.telegram.ui.Classic.ClassicStyle.fill(canvas, new android.graphics.Rect(0,0,getWidth(),getHeight()), org.telegram.ui.Classic.ClassicStyle.surface());
 +            return;
 +        }
          if (!shouldDrawBackground) {
              return;
          }
-@@ -5813,7 +5821,11 @@ public class ChatActivityEnterView extends FrameLayout implements
+@@ -5813,7 +5821,13 @@ public class ChatActivityEnterView extends FrameLayout implements
          messageEditText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
          messageEditText.setGravity(Gravity.BOTTOM);
          messageEditText.setPadding(0, dp(9), 0, dp(10));
 -        messageEditText.setBackgroundDrawable(null);
-+        messageEditText.setBackgroundDrawable(org.telegram.ui.Classic.ClassicStyle.enabled() ? org.telegram.ui.Classic.ClassicStyle.shape(Theme.getColor(Theme.key_chat_inBubble), true) : null);
++        messageEditText.setBackgroundDrawable(org.telegram.ui.Classic.ClassicStyle.enabled() ? org.telegram.ui.Classic.ClassicStyle.inputShape() : null);
 +        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
 +            messageEditText.setPadding(dp(6), dp(9), dp(6), dp(10));
 +            messageEditText.setMinHeight(dp(44));
++            messageEditText.setIncludeFontPadding(false);
++            messageEditText.hintLayoutOffset = dp(6);
 +        }
          messageEditText.setTextColor(getThemedColor(Theme.key_chat_messagePanelText));
          messageEditText.setLinkTextColor(getThemedColor(Theme.key_chat_messageLinkOut));
          messageEditText.setHighlightColor(getThemedColor(Theme.key_chat_inTextSelectionHighlight));
-@@ -6577,8 +6589,8 @@ public class ChatActivityEnterView extends FrameLayout implements
+@@ -5821,7 +5835,7 @@ public class ChatActivityEnterView extends FrameLayout implements
+         messageEditText.setHintTextColor(getThemedColor(Theme.key_chat_messagePanelHint));
+         messageEditText.setCursorColor(getThemedColor(Theme.key_chat_messagePanelCursor));
+         messageEditText.setHandlesColor(getThemedColor(Theme.key_chat_TextSelectionCursor));
+-        messageEditTextContainer.addView(messageEditText, 1, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM, 52, 0, isChat ? 50 : 2, 1.5f));
++        messageEditTextContainer.addView(messageEditText, 1, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM, org.telegram.ui.Classic.ClassicStyle.enabled() ? DEFAULT_HEIGHT : 52, 0, org.telegram.ui.Classic.ClassicStyle.enabled() ? (isChat ? DEFAULT_HEIGHT : 0) : (isChat ? 50 : 2), org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : 1.5f));
+ 
+         richDraftPreview = new RichMessageLayout.PreviewView(getContext(), currentAccount, resourcesProvider);
+         richDraftPreview.setAllowActions(false);
+@@ -6577,8 +6591,8 @@ public class ChatActivityEnterView extends FrameLayout implements
  
          audioVideoButtonContainer.setAlpha(audioVideoButtonContainerForbidden ? 0.5f : 1.0f);
          audioVideoButtonContainer.invalidate();
@@ -604,7 +785,7 @@ index 52b511d..eac1072 100644
          audioVideoSendButton.invalidate();
          updateFieldHint(false);
          boolean currentModeVideo = isInVideoMode;
-@@ -8760,7 +8772,8 @@ public class ChatActivityEnterView extends FrameLayout implements
+@@ -8760,7 +8774,8 @@ public class ChatActivityEnterView extends FrameLayout implements
          slowModeButton.setVisibility(visible ? VISIBLE : GONE);
          int padding = visible ? dp(slowModeButton.isPremiumMode ? 26 : 16) : 0;
          if (messageEditText != null && messageEditText.getPaddingRight() != padding) {
@@ -614,7 +795,33 @@ index 52b511d..eac1072 100644
          }
      }
  
-@@ -10410,7 +10423,7 @@ public class ChatActivityEnterView extends FrameLayout implements
+@@ -8774,19 +8789,19 @@ public class ChatActivityEnterView extends FrameLayout implements
+         int oldRightMargin = layoutParams.rightMargin;
+         if (isStories && isLiveComment) {
+             layoutParams.rightMargin = dp(suggestButtonVisible ? 50 : 2) + Math.max(0, sendButton.width() - dp(DEFAULT_HEIGHT));
+-        } else if (attachVisible == 1 || attachVisible == 2/* && layoutParams.rightMargin != dp(2)*/) {
++        } else if (attachVisible == 1 || attachVisible == 2/* && layoutParams.rightMargin != dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : 2)*/) {
+             if (botButton != null && botButton.getVisibility() == VISIBLE && scheduledButton != null && scheduledButton.getVisibility() == VISIBLE && attachButton != null && attachButton.getVisibility() == VISIBLE) {
+-                layoutParams.rightMargin = dp(146);
++                layoutParams.rightMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? 132 : 146);
+             } else if (botButton != null && botButton.getVisibility() == VISIBLE || notifyButton != null && notifyButton.getVisibility() == VISIBLE || scheduledButton != null && scheduledButton.getTag() != null) {
+-                layoutParams.rightMargin = dp(98);
++                layoutParams.rightMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? 88 : 98);
+             } else {
+-                layoutParams.rightMargin = dp(50);
++                layoutParams.rightMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? DEFAULT_HEIGHT : 50);
+             }
+         } else {
+             if (scheduledButton != null && scheduledButton.getTag() != null) {
+-                layoutParams.rightMargin = dp(50);
++                layoutParams.rightMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? DEFAULT_HEIGHT : 50);
+             } else {
+-                layoutParams.rightMargin = dp(2);
++                layoutParams.rightMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : 2);
+             }
+         }
+         layoutParams.rightMargin = Math.max(layoutParams.rightMargin, Math.max(0, sendButton.width() - dp(DEFAULT_HEIGHT)));
+@@ -10410,7 +10425,7 @@ public class ChatActivityEnterView extends FrameLayout implements
          if (botKeyboardView != null) {
              botKeyboardView.updateColors();
          }
@@ -623,19 +830,67 @@ index 52b511d..eac1072 100644
          emojiButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.SRC_IN));
          emojiButton.setBackground(Theme.createSelectorDrawable(getThemedColor(Theme.key_listSelector)));
          deleteRichDraftButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.SRC_IN));
-@@ -14707,6 +14720,11 @@ public class ChatActivityEnterView extends FrameLayout implements
+@@ -14534,10 +14549,10 @@ public class ChatActivityEnterView extends FrameLayout implements
+                 ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(10) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
+             }
+             if (messageEditText != null) {
+-                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(57) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
++                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? 54 : 57) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
+             }
+             if (richDraftPreview != null) {
+-                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(57) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
++                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? 54 : 57) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
+             }
+         } else if (senderSelectView != null && senderSelectView.getVisibility() == View.VISIBLE) {
+             int width = senderSelectView.getLayoutParams().width, height = senderSelectView.getLayoutParams().height;
+@@ -14547,21 +14562,21 @@ public class ChatActivityEnterView extends FrameLayout implements
+                 ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(7) + width;
+             }
+             if (messageEditText != null) {
+-                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(54) + width;
++                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? 51 : 54) + width;
+             }
+             if (richDraftPreview != null) {
+-                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(54) + width;
++                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? 51 : 54) + width;
+             }
+         } else {
+-            ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(3);
++            ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : 3);
+             if (deleteRichDraftButton != null) {
+-                ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(3);
++                ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : 3);
+             }
+             if (messageEditText != null) {
+-                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(50);
++                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? DEFAULT_HEIGHT : 50);
+             }
+             if (richDraftPreview != null) {
+-                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(50);
++                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(org.telegram.ui.Classic.ClassicStyle.enabled() ? DEFAULT_HEIGHT : 50);
+             }
+         }
+         updateBotCommandsMenuContainerTopPadding();
+@@ -14707,9 +14722,18 @@ public class ChatActivityEnterView extends FrameLayout implements
              super.dispatchDraw(canvas);
              canvas.restore();
          }
 +        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
-+            org.telegram.ui.Classic.ClassicStyle.frame(canvas, new android.graphics.RectF(0,0,getWidth(),getHeight()), false,255);
 +            org.telegram.ui.Classic.ClassicStyle.frameControl(canvas, this, emojiButton);
 +            org.telegram.ui.Classic.ClassicStyle.frameControl(canvas, this, attachButton);
++            org.telegram.ui.Classic.ClassicStyle.frameControl(canvas, this, botButton);
++            org.telegram.ui.Classic.ClassicStyle.frameControl(canvas, this, notifyButton);
++            org.telegram.ui.Classic.ClassicStyle.frameControl(canvas, this, scheduledButton);
++            org.telegram.ui.Classic.ClassicStyle.frameControl(canvas, this, giftButton);
 +        }
      }
  
      private int getThemedColor(int key) {
-@@ -15179,7 +15197,10 @@ public class ChatActivityEnterView extends FrameLayout implements
++        if (org.telegram.ui.Classic.ClassicStyle.enabled()) return Theme.getColor(key, resourcesProvider);
+         if (resourcesProvider != null) {
+             return resourcesProvider.getColor(key);
+         }
+@@ -15179,7 +15203,10 @@ public class ChatActivityEnterView extends FrameLayout implements
              updateColors();
              checkBackgroundRect();
              if (isNewDesignSendButton) {
@@ -647,7 +902,7 @@ index 52b511d..eac1072 100644
              }
  
              final boolean inactive = isInactive();
-@@ -15440,7 +15461,7 @@ public class ChatActivityEnterView extends FrameLayout implements
+@@ -15440,7 +15467,7 @@ public class ChatActivityEnterView extends FrameLayout implements
          private int drawableColor;
  
          public void updateColors() {
@@ -656,6 +911,17 @@ index 52b511d..eac1072 100644
              if (color != drawableColor) {
                  drawableColor = color;
                  drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+@@ -15514,8 +15541,8 @@ public class ChatActivityEnterView extends FrameLayout implements
+         private static final int RADIUS = 19;
+ 
+         private void checkBackgroundRect() {
+-            final float margin = dpf2(3);
+-            final float height = dpf2(38);
++            final float margin = org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : dpf2(3);
++            final float height = org.telegram.ui.Classic.ClassicStyle.enabled() ? getMeasuredHeight() : dpf2(38);
+             final float width = lerp(
+                 Math.max(height, dpf2(10 + 10) + priceText.getCurrentWidth()),
+                 height, sameWidthFactor);
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatAvatarContainer.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatAvatarContainer.java
 index cf71c16..885b8a1 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatAvatarContainer.java
@@ -669,7 +935,7 @@ index cf71c16..885b8a1 100644
          subtitleTextView.setTextColor(subtitle);
          subtitleTextView.setTag(subtitle);
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/FilterTabsView.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/FilterTabsView.java
-index 52238e8..c4e773e 100644
+index 52238e8..331e3a7 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/FilterTabsView.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/FilterTabsView.java
 @@ -296,6 +296,10 @@ public class FilterTabsView extends FrameLayout {
@@ -697,8 +963,8 @@ index 52238e8..c4e773e 100644
      @Override
      protected void dispatchDraw(@NonNull Canvas canvas) {
 +        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++            org.telegram.ui.Classic.ClassicStyle.fill(canvas, new android.graphics.Rect(0,0,getWidth(),getHeight()), org.telegram.ui.Classic.ClassicStyle.surface());
 +            super.dispatchDraw(canvas);
-+            org.telegram.ui.Classic.ClassicStyle.frame(canvas, new RectF(0,0,getWidth(),getHeight()), false,255);
 +            return;
 +        }
          canvas.save();
@@ -755,6 +1021,26 @@ index 9274278..ef0bc8d 100644
          searchIcon.setColorFilter(getThemedColor(Theme.key_windowBackgroundWhiteBlackText, 0.6f), PorterDuff.Mode.MULTIPLY);
          closeIcon.setColorFilter(getThemedColor(Theme.key_windowBackgroundWhiteBlackText, 0.6f), PorterDuff.Mode.MULTIPLY);
          closeIcon.setBackground(Theme.createSelectorDrawable(getThemedColor(Theme.key_listSelector), 1, dp(17)));
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/PopupSwipeBackLayout.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/PopupSwipeBackLayout.java
+index ed34092..a3e0aea 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/PopupSwipeBackLayout.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/PopupSwipeBackLayout.java
+@@ -428,7 +428,7 @@ public class PopupSwipeBackLayout extends FrameLayout {
+ 
+         int s = canvas.save();
+         mPath.rewind();
+-        int rad = AndroidUtilities.dp(12);
++        int rad = org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : AndroidUtilities.dp(12);
+         if (stickToRight) {
+             mRect.set(getWidth() - w, y, getWidth(), y + h);
+         } else {
+@@ -540,4 +540,4 @@ public class PopupSwipeBackLayout extends FrameLayout {
+     public interface OnSwipeBackProgressListener {
+         void onSwipeBackProgress(PopupSwipeBackLayout layout, float toProgress, float progress);
+     }
+-}
+\ No newline at end of file
++}
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java
 index e53a830..afdf6f7 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java
@@ -779,7 +1065,7 @@ index e53a830..afdf6f7 100644
              drawSelectors2(canvas);
          }
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/SizeNotifierFrameLayout.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/SizeNotifierFrameLayout.java
-index d9d6c04..c60dccd 100644
+index d9d6c04..8d9e483 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/SizeNotifierFrameLayout.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/SizeNotifierFrameLayout.java
 @@ -170,6 +170,10 @@ public class SizeNotifierFrameLayout extends FrameLayout implements Theme.Colora
@@ -787,7 +1073,7 @@ index d9d6c04..c60dccd 100644
          @Override
          protected void onDraw(Canvas canvas) {
 +            if (org.telegram.ui.Classic.ClassicStyle.enabled() && !org.telegram.ui.Classic.ClassicStyle.wallpaperVisible()) {
-+                org.telegram.ui.Classic.ClassicStyle.panel(canvas, new android.graphics.Rect(0,0,getWidth(),getHeight()), org.telegram.ui.Classic.ClassicStyle.surface(), false);
++                org.telegram.ui.Classic.ClassicStyle.fill(canvas, new android.graphics.Rect(0,0,getWidth(),getHeight()), org.telegram.ui.Classic.ClassicStyle.surface());
 +                return;
 +            }
              if (backgroundDrawable == null || skipBackgroundDrawing) {
@@ -859,6 +1145,58 @@ index effeace..e01aaff 100644
          drawSource(canvas, source);
      }
  
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/chat/ChatInputViewsContainer.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/chat/ChatInputViewsContainer.java
+index 78c3b9e..5ffdbee 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/chat/ChatInputViewsContainer.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/chat/ChatInputViewsContainer.java
+@@ -27,7 +27,7 @@ public class ChatInputViewsContainer extends FrameLayout {
+     public static final int INPUT_BUBBLE_RADIUS = 22;
+     public static final int INPUT_KEYBOARD_RADIUS = 29;
+ 
+-    public static final int INPUT_BUBBLE_BOTTOM = 9;
++    public static final int INPUT_BUBBLE_BOTTOM = org.telegram.ui.Classic.ClassicStyle.enabled() ? 0 : 9;
+ 
+     private WindowInsetsProvider windowInsetsProvider;
+ 
+@@ -55,6 +55,7 @@ public class ChatInputViewsContainer extends FrameLayout {
+         fadeView = new View(context) {
+             @Override
+             protected void dispatchDraw(@NonNull Canvas canvas) {
++                if (org.telegram.ui.Classic.ClassicStyle.enabled()) return;
+                 if (backgroundWithFadeDrawable != null) {
+                     backgroundWithFadeDrawable.draw(canvas);
+                 }
+@@ -250,6 +251,13 @@ public class ChatInputViewsContainer extends FrameLayout {
+ 
+     @Override
+     protected void dispatchDraw(@NonNull Canvas canvas) {
++        if (org.telegram.ui.Classic.ClassicStyle.enabled()) {
++            tmpRect.set(0, Math.round(getInputBubbleTop()), getWidth(), getHeight());
++            blurredBackgroundDrawable.setBounds(tmpRect);
++            org.telegram.ui.Classic.ClassicStyle.fill(canvas, tmpRect, org.telegram.ui.Classic.ClassicStyle.surface());
++            super.dispatchDraw(canvas);
++            return;
++        }
+         underKeyboardBackgroundDrawable.setBounds(
+             0,
+             getMeasuredHeight() - (int) imeBottomInset,
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/chat/layouts/ChatActivityFadeView.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/chat/layouts/ChatActivityFadeView.java
+index ed25fdd..c18b4ce 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/chat/layouts/ChatActivityFadeView.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/chat/layouts/ChatActivityFadeView.java
+@@ -104,6 +104,7 @@ public class ChatActivityFadeView extends View implements Theme.Colorable {
+ 
+     @Override
+     protected void onDraw(@NonNull Canvas canvas) {
++        if (org.telegram.ui.Classic.ClassicStyle.enabled()) return;
+         super.onDraw(canvas);
+         fadeDrawableTop.draw(canvas);
+         fadeDrawableBottom.draw(canvas);
+@@ -117,4 +118,3 @@ public class ChatActivityFadeView extends View implements Theme.Colorable {
+         }
+     }
+ }
+-
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java
 index 4429525..eb9e15c 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java
@@ -877,10 +1215,23 @@ index 4429525..eb9e15c 100644
  
              paintCounterBackground.setColor(Theme.multAlpha(colorSelected, 0.09f * alpha));
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/DialogsActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/DialogsActivity.java
-index 48ec85b..c6ad51f 100644
+index 48ec85b..14f4faa 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/DialogsActivity.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/DialogsActivity.java
-@@ -3517,7 +3517,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
+@@ -900,7 +900,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
+ 
+                 final boolean doNotClip = child == topPanelLayout || child == filterTabsView;
+                 if (!doNotClip) {
+-                    canvas.clipRect(0, -getY() + getActionBarTop() + getActionBarFullHeight(), getMeasuredWidth(), getMeasuredHeight());
++                    float clipTop = -getY() + getActionBarTop() + getActionBarFullHeight();
++                    if (org.telegram.ui.Classic.ClassicStyle.enabled() && filterTabsView != null && filterTabsView.getVisibility() == VISIBLE && filterTabsView.getAlpha() > 0) {
++                        clipTop = Math.max(clipTop, filterTabsView.getY() + filterTabsView.getHeight());
++                    }
++                    canvas.clipRect(0, clipTop, getMeasuredWidth(), getMeasuredHeight());
+                 }
+                 if (slideFragmentProgress != 1f) {
+                     if (slideFragmentLite) {
+@@ -3517,7 +3521,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                  logoDrawable.setBounds(0, dp(2), logoDrawable.getIntrinsicWidth(), dp(2) + logoDrawable.getIntrinsicHeight());
                  logoDrawable.setColorFilter(getThemedColor(Theme.key_telegram_color_dialogsLogo), PorterDuff.Mode.MULTIPLY);
                  SpannableStringBuilder ssb = new SpannableStringBuilder(getString(R.string.AppName));
@@ -889,6 +1240,13 @@ index 48ec85b..c6ad51f 100644
                  actionBar.setTitle(ssb, statusDrawable);
                  updateStatus(UserConfig.getInstance(currentAccount).getCurrentUser(), false);
              }
+@@ -14481,4 +14485,4 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
+         return true;
+     }
+ 
+-}
+\ No newline at end of file
++}
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java
 index b3cd7c5..ba7b0d5 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java

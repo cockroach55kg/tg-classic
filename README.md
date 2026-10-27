@@ -4,9 +4,9 @@
 
 Собран нативный Telegram Desktop с оформлением XP Classic по согласованному изображению. Интерактивный браузерный предпросмотр сохранён отдельно.
 
-Перенос на другие платформы: [Android](android/README.md) и [Windows](windows/README.md). Оба клиента собраны. В Android r2 исправлены аватары, заголовки, панель ввода и классические рамки; настоящие экраны чатов, настроек и переписки проверены в обеих палитрах на вымышленных офлайн-данных. Windows x64 ZIP успешно запущен в отдельном пустом профиле Windows CI. Сохранены иконка TG Classic и классическое оформление.
+Перенос на другие платформы: [Android](android/README.md) и [Windows](windows/README.md). Оба клиента собраны. В Android r3 исправлены пустое меню, смещение сообщений, стыки кнопок ввода, наложение вкладок папок и белые внешние рамки. Проверены 16 состояний настоящих экранов в обеих палитрах на вымышленных офлайн-данных; обновление подписанного APK поверх r2 сохраняет тестовый файл данных. Windows x64 ZIP успешно запущен в отдельном пустом профиле Windows CI. Сохранены иконка TG Classic и классическое оформление.
 
-Локальные пакеты находятся в `artifacts/android-r2/TG-Classic-Android-arm64.apk` и `artifacts/windows/TG-Classic-Windows-x64.zip`. Windows: распаковать папку целиком и открыть `TG Classic.exe`. Android: установить APK ARM64 на Android 6.0+. Это тестовые сборки с ограниченными реквизитами upstream; перед публичным выпуском требуются собственные [Telegram API ID и Hash](https://core.telegram.org/api/obtaining_api_id).
+Локальные пакеты находятся в `artifacts/android-r3/TG-Classic-Android-arm64.apk` и `artifacts/windows/TG-Classic-Windows-x64.zip`. Windows: распаковать папку целиком и открыть `TG Classic.exe`. Android: установить APK ARM64 на Android 6.0+. Это тестовые сборки с ограниченными реквизитами upstream; перед публичным выпуском требуются собственные [Telegram API ID и Hash](https://core.telegram.org/api/obtaining_api_id).
 
 [Успешная сборка Windows](https://github.com/cockroach55kg/tg-classic/actions/runs/40186825974) и [проверка запуска пакета](https://github.com/cockroach55kg/tg-classic/actions/runs/40212157556). Архивы Actions хранятся 30 дней; для скачивания артефактов нужен вход в GitHub. Исходники и сценарии сборки открыты, постоянные ключи подписи и профили в репозитории отсутствуют.
 

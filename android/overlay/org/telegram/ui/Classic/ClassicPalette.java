@@ -5,6 +5,12 @@ public final class ClassicPalette {
     private ClassicPalette() {}
     public static Integer color(int key) {
         boolean dark = ClassicStyle.dark();
+        if (key == Theme.key_actionBarDefaultSubmenuBackground) return ClassicStyle.surface();
+        if (key == Theme.key_actionBarDefaultSubmenuItem || key == Theme.key_actionBarDefaultSubmenuItemIcon) return ClassicStyle.text();
+        if (key == Theme.key_actionBarDefaultSubmenuSeparator) return dark ? 0xff405565 : 0xff808080;
+        if (key == Theme.key_telegram_color_dialogsLogo) return 0xffffffff;
+        if (key == Theme.key_telegram_color_text) return dark ? 0xff90b8ff : 0xff000080;
+        if (key == Theme.key_chats_date_bold) return dark ? 0xffa0adb8 : 0xff404040;
         if (key == Theme.key_telegram_color) return dark ? 0xff90b8ff : 0xff000080;
         if (key == Theme.key_chats_unreadCounterMuted) return dark ? 0xff405565 : 0xff606060;
         if (key == Theme.key_windowBackgroundWhiteGrayText3 || key == Theme.key_windowBackgroundWhiteGrayText4) return dark ? 0xffa0adb8 : 0xff404040;

@@ -50,9 +50,12 @@ public final class ClassicStyle {
         }
     }
     public static void panel(Canvas canvas, Rect bounds, int color, boolean pressed) {
+        fill(canvas, bounds, color);
+        frame(canvas, new RectF(bounds), pressed, Color.alpha(color));
+    }
+    public static void fill(Canvas canvas, Rect bounds, int color) {
         Paint paint = new Paint(); paint.setColor(color);
         canvas.drawRect(bounds, paint);
-        frame(canvas, new RectF(bounds), pressed, Color.alpha(color));
     }
     public static ShapeDrawable shape(int color, boolean sunken) {
         ShapeDrawable result = new ShapeDrawable(new RectShape()) {
@@ -63,6 +66,17 @@ public final class ClassicStyle {
         };
         result.getPaint().setColor(color);
         return result;
+    }
+    public static ShapeDrawable inputShape() {
+        return new ShapeDrawable(new RectShape()) {
+            @Override public void draw(Canvas canvas) {
+                int alpha = getPaint().getAlpha();
+                getPaint().setColor(Theme.getColor(Theme.key_chat_inBubble));
+                getPaint().setAlpha(alpha);
+                super.draw(canvas);
+                frame(canvas, new RectF(getBounds()), true, alpha);
+            }
+        };
     }
     public static void controlFrames(Canvas canvas, ViewGroup group) {
         for (int i=0; i<group.getChildCount(); i++) {
@@ -83,9 +97,20 @@ public final class ClassicStyle {
     }
     public static void frameControl(Canvas canvas, ViewGroup root, View child) {
         if (child == null || child.getVisibility() != View.VISIBLE || child.getAlpha() == 0) return;
-        Rect bounds = new Rect(0, 0, child.getWidth(), child.getHeight());
-        root.offsetDescendantRectToMyCoords(child, bounds);
-        frame(canvas, new RectF(bounds), child.isPressed(), Math.round(255 * child.getAlpha()));
+        RectF bounds = new RectF(0, 0, child.getWidth(), child.getHeight());
+        View current = child;
+        float alpha = 1f;
+        while (current != root) {
+            if (current.getVisibility() != View.VISIBLE) return;
+            alpha *= current.getAlpha();
+            if (alpha == 0) return;
+            if (!(current.getParent() instanceof View)) return;
+            View parent = (View) current.getParent();
+            current.getMatrix().mapRect(bounds);
+            bounds.offset(current.getLeft() - parent.getScrollX(), current.getTop() - parent.getScrollY());
+            current = parent;
+        }
+        frame(canvas, bounds, child.isPressed(), Math.round(255 * alpha));
     }
     public static void storyArc(Canvas canvas, RectF bounds, float angle, float sweep, Paint paint) {
         if (!enabled()) { canvas.drawArc(bounds, angle, sweep, false, paint); return; }
