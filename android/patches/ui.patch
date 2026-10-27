@@ -1386,10 +1386,23 @@ index b3cd7c5..ba7b0d5 100644
      }
  }
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java
-index de2413c..af2ff55 100644
+index de2413c..dd4fdca 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java
-@@ -2134,6 +2134,10 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
+@@ -530,6 +530,12 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
+ 
+     @Override
+     public boolean onFragmentCreate() {
++        if (org.telegram.ui.Classic.ClassicStyle.enabled() && activityMode == MODE_LOGIN
++                && !getUserConfig().isClientActivated() && getConnectionsManager().isTestBackend()) {
++            // A hidden debug switch must not leave an unfinished login on test servers.
++            getConnectionsManager().switchBackend(false);
++            clearCurrentState();
++        }
+         getNotificationCenter().addObserver(this, NotificationCenter.didUpdateConnectionState);
+         getNotificationCenter().addObserver(this, NotificationCenter.newSuggestionsAvailable);
+         return super.onFragmentCreate();
+@@ -2134,6 +2140,10 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
              codeField.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
              codeField.setImeOptions(EditorInfo.IME_ACTION_NEXT | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
              codeField.setBackground(null);
@@ -1400,7 +1413,7 @@ index de2413c..af2ff55 100644
  //            codeField.setLineColors(getThemedColor(Theme.key_windowBackgroundWhiteInputField), getThemedColor(Theme.key_windowBackgroundWhiteInputFieldActivated), getThemedColor(Theme.key_text_RedRegular));
              codeField.setShowSoftInputOnFocus(!(hasCustomKeyboard() && !isCustomKeyboardForceDisabled()));
              codeField.setContentDescription(getString(R.string.LoginAccessibilityCountryCode));
-@@ -2327,6 +2331,10 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
+@@ -2327,6 +2337,10 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
              phoneField.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
              phoneField.setImeOptions(EditorInfo.IME_ACTION_NEXT | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
              phoneField.setBackground(null);
@@ -1411,7 +1424,16 @@ index de2413c..af2ff55 100644
  //            phoneField.setLineColors(getThemedColor(Theme.key_windowBackgroundWhiteInputField), getThemedColor(Theme.key_windowBackgroundWhiteInputFieldActivated), getThemedColor(Theme.key_text_RedRegular));
              phoneField.setShowSoftInputOnFocus(!(hasCustomKeyboard() && !isCustomKeyboardForceDisabled()));
              phoneField.setContentDescription(getString(R.string.PhoneNumber));
-@@ -8773,7 +8781,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
+@@ -2476,7 +2490,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
+             }
+ 
+             final boolean allowTestBackend = (BuildVars.DEBUG_VERSION || TEST_BACKEND_IN_STORE && !BuildConfig.BUNDLE) || getConnectionsManager().isTestBackend();
+-            if (allowTestBackend && activityMode == MODE_LOGIN) {
++            if (!org.telegram.ui.Classic.ClassicStyle.enabled() && allowTestBackend && activityMode == MODE_LOGIN) {
+                 testBackendCheckBox = new CheckBoxCell(context, 2);
+                 testBackendCheckBox.setText(getString(R.string.DebugTestBackend), "", testBackend = getConnectionsManager().isTestBackend(), false);
+                 addView(testBackendCheckBox, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.MATCH_PARENT, Gravity.LEFT | Gravity.TOP, 16, 0, 16 + (LocaleController.isRTL && AndroidUtilities.isSmallScreen() ? 56 : 0), 0));
+@@ -8773,7 +8787,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
      @Override
      public boolean isLightStatusBar() {
          int color = Theme.getColor(Theme.key_windowBackgroundWhite, null, true);

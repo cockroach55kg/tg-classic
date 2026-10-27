@@ -49,6 +49,12 @@
       "source": "artifacts/windows-installer/startup-verification.png",
       "sha256": "35d1f3c9cfd0b475871e5a511793f359774b334f665912a94402842672108aed",
       "ci_run": "https://github.com/cockroach55kg/tg-classic/actions/runs/40452482571"
+    },
+    {
+      "file": "android-login-r4.png",
+      "source": "evidence/android-r4-login/phone-entry.png",
+      "sha256": "0213650b7cd2e00952611f49c389b2a8b3bdc93eff1b2528cd6d4cac9e3d7615"
     }
-  ]
+  ],
+  "android_login_revision": "android-r4"
 }

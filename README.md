@@ -12,9 +12,9 @@
 
 | Платформа | Скачать | Требования |
 | --- | --- | --- |
-| Windows | [Установщик EXE](https://github.com/cockroach55kg/tg-classic/releases/download/v0.1.0-preview.1/TG-Classic-Windows-x64-Setup.exe) | Windows 10/11, x64 |
-| Android | [APK](https://github.com/cockroach55kg/tg-classic/releases/download/v0.1.0-preview.1/TG-Classic-Android-arm64.apk) | Android 6.0+, ARM64 |
-| macOS | [Образ DMG](https://github.com/cockroach55kg/tg-classic/releases/download/v0.1.0-preview.1/TG-Classic-macOS-arm64.dmg) | macOS 14+, Apple Silicon |
+| Windows | [Установщик EXE](https://github.com/cockroach55kg/tg-classic/releases/download/v0.1.0-preview.2/TG-Classic-Windows-x64-Setup.exe) | Windows 10/11, x64 |
+| Android | [APK](https://github.com/cockroach55kg/tg-classic/releases/download/v0.1.0-preview.2/TG-Classic-Android-arm64.apk) | Android 6.0+, ARM64 |
+| macOS | [Образ DMG](https://github.com/cockroach55kg/tg-classic/releases/download/v0.1.0-preview.2/TG-Classic-macOS-arm64.dmg) | macOS 14+, Apple Silicon |
 
 Windows: запустите установщик. Приложение устанавливается для текущего пользователя; профиль хранится отдельно в `%APPDATA%\TG Classic` и сохраняется при удалении. В Releases также есть portable ZIP.
 
@@ -26,7 +26,13 @@ Android: установите APK. Обновление поверх преды�
 
 Ниже реальные снимки последних проверенных сборок. Android показывает вымышленные офлайн-чаты. На настольных снимках используются пустые профили и нативные тестовые элементы интерфейса.
 
-### Android r3
+### Android
+
+В r4 убран переключатель тестового сервера. Экран ввода номера из офлайн-проверки r4:
+
+<img src="docs/screenshots/android-login-r4.png" alt="Экран входа TG Classic Android r4 без переключателя тестового сервера" width="260">
+
+Оформление чатов, папок и настроек r3 сохранено в r4:
 
 <table>
   <tr>
@@ -58,7 +64,7 @@ Android: установите APK. Обновление поверх преды�
 
 Светлая и тёмная палитры, объёмные меню и кнопки, выбор собственного фона чата и переключатель его отображения. TG Classic использует отдельные идентификаторы и данные приложения.
 
-Android r3 прошёл проверки 16 состояний экранов в обеих палитрах, включая меню, группу, папки и ввод с открытой/закрытой клавиатурой. Проверены установка подписанного APK поверх r2 и сохранение тестового файла данных. macOS r4 прошёл 211 нативных проверок. Windows проверяется в отдельной Windows-среде с пустым профилем. Эти проверки не подтверждают работу всех функций внутри авторизованного аккаунта.
+Android r4 проверен на обновление с включённым тестовым сервером: галочка исчезает, незавершённый вход возвращается на обычный сервер, тестовые данные сохраняются. Оформление Android r3 прошло проверки 16 состояний экранов в обеих палитрах, включая меню, группу, папки и ввод с открытой/закрытой клавиатурой. Проверены установка подписанного APK поверх r2 и сохранение тестового файла данных. macOS r4 прошёл 211 нативных проверок. Windows проверяется в отдельной Windows-среде с пустым профилем. Эти проверки не подтверждают работу всех функций внутри авторизованного аккаунта.
 
 ## Открытый код и сборка
 
