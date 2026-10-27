@@ -1,0 +1,127 @@
+{
+  "tag": "v0.1.0-preview.1",
+  "status": "prerelease",
+  "source_repository": "https://github.com/cockroach55kg/tg-classic",
+  "source_ref": "refs/tags/v0.1.0-preview.1",
+  "desktop": {
+    "upstream_commit": "5c674f1f6a0f6ace55b67f8bc295138680fe588b",
+    "lib_ui_commit": "2f29133506e174a9d4a7b78740c3f1b04c2b993c",
+    "patch_sha256": {
+      "tdesktop.patch": "84d6ba0da5ac8e8952c8bcf1ef9be6193a8ac640a1fe53d11e0538a256e54246",
+      "lib_ui.patch": "e9a477dfa7432992687c63d5cb2c669c0352ab4b7f09dcaabb5dbcc3a21ba79e"
+    },
+    "mac_revision": "2026-10-25-r4",
+    "windows_binary_build_commit": "14dde67064ccc7346812ed09252fb45271b7fde7",
+    "windows_installer_workflow_commit": "aab72f144a33540ac8c494bc127f7ab1d3829e86",
+    "windows_installer_checks": {
+      "real_account_used": false,
+      "install_succeeded": true,
+      "installed_binary_sha256": "488e2594f7443f22c030c3b3574e86a5d20a05c8ba2c3c9322084cea662582e9",
+      "update_succeeded": true,
+      "test_profile_preserved_on_uninstall": true,
+      "installer_sha256": "acedd330eda17e160b542cfe4166e07fdba858c3dcd29e12ac53326d32d1cb21",
+      "start_menu_and_desktop_shortcuts_checked": true,
+      "test_profile_preserved_on_update": true,
+      "native_window_and_15_second_startup": true,
+      "uninstall_succeeded": true,
+      "current_user_scope": true
+    },
+    "mac_dmg_checks": {
+      "file": "TG-Classic-macOS-arm64.dmg",
+      "sha256": "0357e2f15070bad41ef9248e19f16f21924b04f966ce585726daa0261ddfb0f5",
+      "bytes": 132953284,
+      "build_revision": "2026-10-25-r4",
+      "architecture": "arm64",
+      "minimum_macos": "14.0",
+      "signature": "ad-hoc",
+      "notarized": false,
+      "dmg_checksum_verified": true,
+      "mounted_app_byte_identical": true,
+      "codesign_verified_inside_dmg": true,
+      "profile_data_included": false
+    }
+  },
+  "android": {
+    "upstream_commit": "0aae959806c57be8ad457980f2a5c6277ff18635",
+    "revision": "android-r3",
+    "certificate_sha256": "522214a53cf24b6a5084bcadda7b99505405484150d8a5e16eac0ff5c4fb31c2",
+    "patch_sha256": {
+      "ui.patch": "c4ea4e933eca82703de4dab5e9c6cad35acf45977ababb62a4e949bc36e60500"
+    },
+    "verification": {
+      "android_release": "15",
+      "api_level": 35,
+      "startup_foreground_seconds": 15,
+      "account": "empty test profile",
+      "authenticated_messaging_tested": false,
+      "push_delivery_tested": false,
+      "native_elf_alignment_bytes": 16384,
+      "test_api": true,
+      "offline_fixture_screens": [
+        "group-dark",
+        "chat-dark",
+        "composer-keyboard-dark",
+        "composer-typed-dark",
+        "folders-dark",
+        "folders-scrolled-dark",
+        "menu-dark",
+        "settings-dark",
+        "group-light",
+        "chat-light",
+        "composer-keyboard-light",
+        "composer-typed-light",
+        "folders-light",
+        "folders-scrolled-light",
+        "menu-light",
+        "settings-light"
+      ],
+      "offline_fixture_package": "com.tgclassic.client.web.qa",
+      "fixture_screens_visually_checked": true,
+      "square_bitmap_avatar_checked": true,
+      "production_qa_fixtures_excluded": true,
+      "test_private_file_preserved_on_update": true,
+      "fixture_qa_apk_sha256": "d09e1c9a4d0fd8664a780ec1a30a019f474995beba0b1c27e69a20f6e40cedd2",
+      "group_message_edges_asserted": true,
+      "composer_edges_and_baselines_asserted": true,
+      "keyboard_shown_and_hidden_checked": true,
+      "popup_rows_checked_in_both_palettes": true,
+      "palette_continuously_asserted_during_interactions": true,
+      "rendered_palette_rgb_checked": true,
+      "rendered_rgb_tolerance_per_channel": 2,
+      "update_from_r2_tested": true,
+      "production_startup_apk_sha256": "d74db9f5a7bda78fab50f720e49893092b4ac1bd435bdb564a2953abb742d4a3",
+      "manual_review": "group messages, menus, settings, folder scrolling and input with keyboard shown/hidden in light/dark; production onboarding startup"
+    }
+  },
+  "test_api": true,
+  "authenticode_signed": false,
+  "macos_notarized": false,
+  "profile_data_included": false,
+  "artifacts": [
+    {
+      "file": "TG-Classic-Android-arm64.apk",
+      "bytes": 53539861,
+      "sha256": "d74db9f5a7bda78fab50f720e49893092b4ac1bd435bdb564a2953abb742d4a3"
+    },
+    {
+      "file": "TG-Classic-Windows-x64-Setup.exe",
+      "bytes": 94820433,
+      "sha256": "acedd330eda17e160b542cfe4166e07fdba858c3dcd29e12ac53326d32d1cb21"
+    },
+    {
+      "file": "TG-Classic-Windows-x64.zip",
+      "bytes": 152217653,
+      "sha256": "0fb59040f3a491760e9637229a0b90fcc75c278ba3ab146c71ee8dabffbb369d"
+    },
+    {
+      "file": "TG-Classic-macOS-arm64.dmg",
+      "bytes": 132953284,
+      "sha256": "0357e2f15070bad41ef9248e19f16f21924b04f966ce585726daa0261ddfb0f5"
+    },
+    {
+      "file": "TG-Classic-macOS-arm64.zip",
+      "bytes": 131371330,
+      "sha256": "3a36b0d12f0184d000e407747f2febcdc506bb52266d0812409d51454fa4f2f1"
+    }
+  ]
+}

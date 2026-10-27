@@ -1,6 +1,6 @@
 {
   "name": "TG Classic",
-  "status": "r4 macOS arm64 verified and installed; Windows x64 Debug preview built and empty-profile startup verified",
+  "status": "r4 macOS arm64 verified; Windows x64 per-user installer verified; public preview packages for Windows, macOS and Android",
   "upstream_url": "https://github.com/telegramdesktop/tdesktop.git",
   "upstream_tag": "v7.3.3",
   "upstream_commit": "5c674f1f6a0f6ace55b67f8bc295138680fe588b",
@@ -33,7 +33,14 @@
     "previous_r2_regression_checks_passed": 30,
     "modal_regression_checks_passed": 30,
     "startup_checks_passed": 11,
-    "r4_ui_checks_passed": 108
+    "r4_ui_checks_passed": 108,
+    "dmg": {
+      "file": "TG-Classic-macOS-arm64.dmg",
+      "sha256": "0357e2f15070bad41ef9248e19f16f21924b04f966ce585726daa0261ddfb0f5",
+      "bytes": 132953284,
+      "mounted_app_byte_identical": true,
+      "codesign_verified_inside_dmg": true
+    }
   },
   "application": "artifacts/TG Classic.app",
   "build_revision": "2026-10-25-r4",
@@ -75,6 +82,17 @@
     "startup_screenshot": "evidence/windows-r1/startup-verification.png",
     "package_sha256": "0fb59040f3a491760e9637229a0b90fcc75c278ba3ab146c71ee8dabffbb369d",
     "package_bytes": 152217653,
-    "binary_sha256": "488e2594f7443f22c030c3b3574e86a5d20a05c8ba2c3c9322084cea662582e9"
-  }
+    "binary_sha256": "488e2594f7443f22c030c3b3574e86a5d20a05c8ba2c3c9322084cea662582e9",
+    "installer": {
+      "file": "TG-Classic-Windows-x64-Setup.exe",
+      "version": "7.3.3.1",
+      "sha256": "acedd330eda17e160b542cfe4166e07fdba858c3dcd29e12ac53326d32d1cb21",
+      "bytes": 94820433,
+      "verification_run": "https://github.com/cockroach55kg/tg-classic/actions/runs/40452482571",
+      "install_update_uninstall_verified": true,
+      "test_profile_preserved": true,
+      "current_user_scope": true
+    }
+  },
+  "public_preview_release": "v0.1.0-preview.1"
 }

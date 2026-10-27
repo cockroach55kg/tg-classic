@@ -1,0 +1,54 @@
+{
+  "real_account_data": false,
+  "android_revision": "android-r3",
+  "macos_revision": "2026-10-25-r4",
+  "desktop_controls_are_native_offline_test_fixtures": true,
+  "screenshots": [
+    {
+      "file": "android-chat-light.png",
+      "source": "evidence/android-r3/group-light.png",
+      "sha256": "07c6a50199797965373591da67aa80a458667ace425c58a3ce8f68ed3c84ffb0"
+    },
+    {
+      "file": "android-chat-dark.png",
+      "source": "evidence/android-r3/group-dark.png",
+      "sha256": "a83a7b7536046a84644b7d27e8c20919c5345efd4851c57f3e3514ae5ead725c"
+    },
+    {
+      "file": "android-folders.png",
+      "source": "evidence/android-r3/folders-light.png",
+      "sha256": "a5fb4e714ea64b18a014c6e1b93a7f93ff35bad37fa0213f669be064d31a1bff"
+    },
+    {
+      "file": "android-menu.png",
+      "source": "evidence/android-r3/menu-dark.png",
+      "sha256": "05796b22ddae223dc06bbc8c6a19eeb3af2d68c733dfa9b201475153980f2f74"
+    },
+    {
+      "file": "android-settings.png",
+      "source": "evidence/android-r3/settings-light.png",
+      "sha256": "1af37ddc00277571d28df94a6c95ce76987012c04db8174935070f5a2ec59cdc"
+    },
+    {
+      "file": "macos-main.png",
+      "source": "evidence/mac-r4-regressions/screenshots/mac-native-startup.png",
+      "sha256": "7ab8c71fd561a9432cf5d4bbba898be015f41a8d295bc1cd7bffee7dec720478"
+    },
+    {
+      "file": "macos-controls.png",
+      "source": "evidence/mac-r4-regressions/screenshots/playback-composer-day.png",
+      "sha256": "22e3f45622edf9bc5bcea5594ae5d6dcdd46efbc8bae69d274df06699b744eff"
+    },
+    {
+      "file": "macos-menu.png",
+      "source": "evidence/mac-r4-regressions/screenshots/context-menu-day.png",
+      "sha256": "bb665908b1f72f11be09ad3ae063536ad6f524b4a01dfddac15952072ec2aef7"
+    },
+    {
+      "file": "windows-startup.png",
+      "source": "artifacts/windows-installer/startup-verification.png",
+      "sha256": "35d1f3c9cfd0b475871e5a511793f359774b334f665912a94402842672108aed",
+      "ci_run": "https://github.com/cockroach55kg/tg-classic/actions/runs/40452482571"
+    }
+  ]
+}
