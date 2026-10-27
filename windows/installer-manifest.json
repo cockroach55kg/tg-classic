@@ -1,0 +1,13 @@
+{
+  "installer_version": "7.3.3.1",
+  "source_run": "40186825974",
+  "source_build_commit": "14dde67064ccc7346812ed09252fb45271b7fde7",
+  "source_zip_sha256": "0fb59040f3a491760e9637229a0b90fcc75c278ba3ab146c71ee8dabffbb369d",
+  "binary_sha256": "488e2594f7443f22c030c3b3574e86a5d20a05c8ba2c3c9322084cea662582e9",
+  "icon_sha256": "82c8485b5050ddeeb06f6a9abbd245b259e01d24ad28f8aa37374cdf161ab80d",
+  "icon_source": "assets/TG Classic.png",
+  "application_name": "TG Classic",
+  "architecture": "x64",
+  "minimum_windows": "10",
+  "test_api": true
+}

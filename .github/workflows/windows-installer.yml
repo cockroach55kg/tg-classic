@@ -1,0 +1,34 @@
+name: TG Classic Windows installer
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  installer:
+    runs-on: windows-2025
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the pinned verified portable build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $manifest = Get-Content windows/installer-manifest.json -Raw | ConvertFrom-Json
+          gh run download $manifest.source_run --repo $env:GITHUB_REPOSITORY --name TG-Classic-Windows-x64 --dir portable
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Build the per-user installer
+        run: ./windows/package-installer.ps1 -Archive portable/TG-Classic-Windows-x64.zip
+      - name: Verify install, update, launch and uninstall
+        run: ./windows/verify-installer.ps1 -Installer artifacts/windows-installer/TG-Classic-Windows-x64-Setup.exe
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: TG-Classic-Windows-installer
+          path: artifacts/windows-installer/*
+          if-no-files-found: error
+          retention-days: 30

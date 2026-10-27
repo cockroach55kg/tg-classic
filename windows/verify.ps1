@@ -1,10 +1,20 @@
-param([Parameter(Mandatory=$true)][string]$Executable)
+param(
+    [Parameter(Mandatory=$true)][string]$Executable,
+    [string]$Profile = '',
+    [string]$EvidenceDirectory = ''
+)
 $ErrorActionPreference = 'Stop'
 $binary = (Resolve-Path $Executable).Path
-$profile = Join-Path ([IO.Path]::GetTempPath()) ('TGClassic-smoke-' + [guid]::NewGuid().ToString('N'))
-New-Item -ItemType Directory $profile | Out-Null
-$process = Start-Process -FilePath $binary -ArgumentList @('-workdir', ('"' + $profile + '"')) -WorkingDirectory $profile -PassThru
-$result = @{ binary=$binary; empty_profile=$profile; duration_seconds=15; started=$false; window_created=$false }
+if ($Profile) {
+    $profilePath = (Resolve-Path $Profile).Path
+} else {
+    $profilePath = Join-Path ([IO.Path]::GetTempPath()) ('TGClassic-smoke-' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory $profilePath | Out-Null
+}
+$evidencePath = if ($EvidenceDirectory) { [IO.Path]::GetFullPath($EvidenceDirectory) } else { Split-Path $binary -Parent }
+New-Item -ItemType Directory -Force $evidencePath | Out-Null
+$process = Start-Process -FilePath $binary -ArgumentList @('-workdir', ('"' + $profilePath + '"')) -WorkingDirectory $profilePath -PassThru
+$result = @{ binary=$binary; empty_profile=$profilePath; duration_seconds=15; started=$false; window_created=$false }
 try {
     Start-Sleep -Seconds 15
     $process.Refresh()
@@ -38,7 +48,7 @@ public static class TGClassicWindowCapture {
         if (-not [TGClassicWindowCapture]::PrintWindow($process.MainWindowHandle, $dc, 2)) { throw 'Could not capture the test window.' }
     } finally { $graphics.ReleaseHdc($dc); $graphics.Dispose() }
     try {
-        $bitmap.Save((Join-Path (Split-Path $binary -Parent) 'startup-verification.png'), [System.Drawing.Imaging.ImageFormat]::Png)
+        $bitmap.Save((Join-Path $evidencePath 'startup-verification.png'), [System.Drawing.Imaging.ImageFormat]::Png)
     } finally { $bitmap.Dispose() }
     $result.screenshot = 'startup-verification.png'
     $result.window_width = $width
@@ -50,6 +60,6 @@ public static class TGClassicWindowCapture {
         Stop-Process -Id $process.Id
         $process.WaitForExit()
     }
-    $result | ConvertTo-Json | Set-Content (Join-Path (Split-Path $binary -Parent) 'startup-verification.json') -Encoding utf8
+    $result | ConvertTo-Json | Set-Content (Join-Path $evidencePath 'startup-verification.json') -Encoding utf8
 }
 Write-Output 'TG Classic created a native window and stayed running for 15 seconds with an empty profile.'
